@@ -1,0 +1,36 @@
+Dulcard Arteaga
+Stephen Bromfield
+Joseph Rivera
+
+Project 1
+----------
+
+***Excercise 1: Simple Threading
+
+We implemented the ThreadTest(int n) function as asked. This simply creates N new threads instead of one.
+Each thread loops 5 times as expected, and the -rs command makes them interleave more randomly.
+
+For the next step we used semaphores to synchronize the threads running SimpleThread().  If synchronization is not done properly,
+the SharedVariable will be incremented to the incorrect number. This occurs because context switches may occur
+before any assembly instructions.  This means one thread can attempt to update a variable's value, but another
+thread can retrieve the same variable's value before the othe thread's update is complete.  Outdated memory
+retrieval messes up the expected values.  We use semaphors, locks, and conditions to stop such occurrances.
+
+If the threads are properly synchronized, N threads are running, and each loops 5 times, we should expect the value of 
+SharedVariable to be 5N when all threads have finished running(e.g. 3 threads makes SharedVariable end up as 15). 
+With out synchronization the value is usually and incorrectly 5. 
+
+Using Semaphores to synchronize the SimpleThread() function, the correct value is obtained.  Random seeds do not change this either.
+Essentially, the critical section (the retrieval of the SharedValue and it's increment) is preceded by a P() call and 
+followed by a V() call.  Finally, a "barrier" is put up to stop early finishing threads from displaying the wrong result.
+
+
+***Exercise 2: Implementing Locks
+
+We implemented Locks to be near indentical to the Semaphore implementation.  The primary difference is the internal value contained
+within it.  It is always initialized to one.  This allows only one thread to acquire the Lock at a time.  The Lock also keeps
+track of which thread acquired it.  For testing, we implemented the same SimpleThread() function using Locks instead of Semaphores.
+The results were still the same as before.  The SharedVariable sums up to 5N (N being the number of threads) as expected.  Using 
+the random seed option does not affect this.
+
+Similar to the Semaphore solution, the critical section is preceded by an Acquire() call, and follwed by a Release() call.

@@ -9,8 +9,6 @@
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
-//#define HW1_SEMAPHORES
-//#define HW1_LOCKS
 
 #include "copyright.h"
 #include "system.h"
@@ -26,84 +24,7 @@ int testnum = 1;
 //	"which" is simply a number identifying the thread, for debugging
 //	purposes.
 //----------------------------------------------------------------------
-#if defined(CHANGED) && defined(THREADS)
-int SharedVariable; 
-int threadsDone;
-
-#ifdef HW1_SEMAPHORES
-Semaphore *s;
-void SimpleThread(int which) 
-{ 
-	if(s == NULL)
-	{
-		DEBUG('t', "USING SEMAPHORES\n");
-		s = new Semaphore("shared semaphore", 1);
-	}
-	int num, val; 
-
-	for(num = 0; num < 5; num++) 
-	{ 
-		s->P();
-
-		val = SharedVariable; 
-		printf("*** thread %d sees value %d\n", which, val); 
-		currentThread->Yield(); 
-		SharedVariable = val+1; 
-
-		s->V();
-
-		currentThread->Yield(); 
- 	} 
-
-	//We use threadsDone as a "barrier" to stop threads that finish
-	// first from printing the final value.
-	threadsDone--;
-	while(threadsDone != 0)
-		currentThread->Yield(); 
-
-	val = SharedVariable; 
-	
-	printf("Thread %d sees final value %d\n", which, val);
-} 
-
-#elif defined(HW1_LOCKS)
-Lock *testLock;
-void SimpleThread(int which) 
-{ 
-	if(testLock == NULL)
-	{
-		DEBUG('t', "USING LOCKS\n");
-		testLock = new  Lock("test");
-	}
-	int num, val; 
-
-	for(num = 0; num < 5; num++) 
-	{ 
-		testLock->Acquire();
-
-		val = SharedVariable; 
-		printf("*** thread %d sees value %d\n", which, val); 
-		currentThread->Yield(); 
-		SharedVariable = val+1; 
-
-		testLock->Release();
-
-		currentThread->Yield(); 
- 	} 
-
-	//We use threadsDone as a "barrier" to stop threads that finish
-	// first from printing the final value.
-	threadsDone--;
-	while(threadsDone != 0)
-	{
-		DEBUG('t', "threadsDone = %d\n", threadsDone);
-		currentThread->Yield(); 
-	}
-	val = SharedVariable; 
-	
-	printf("Thread %d sees final value %d\n", which, val);
-}
-#else
+#ifndef CHANGED
 void
 SimpleThread(int which)
 {
@@ -113,16 +34,107 @@ SimpleThread(int which)
 	printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
     }
+} 
+#endif
+#if defined(CHANGED) && defined(THREADS)
+int SharedVariable; 
+int threadsDone;
+#ifdef HW1_SEMAPHORES
+Semaphore *s;
+void SimpleThread(int which) 
+{ 
+    if(s == NULL)
+    {
+	DEBUG('t', "USING SEMAPHORES\n");
+	s = new Semaphore("shared semaphore", 1);
+    }
+    int num, val; 
+
+    for(num = 0; num < 5; num++) 
+    { 
+	s->P();
+	
+	val = SharedVariable; 
+	printf("*** thread %d sees value %d\n", which, val); 
+	currentThread->Yield(); 
+	SharedVariable = val+1; 
+	
+	s->V();
+	
+	currentThread->Yield(); 
+    } 
+
+    //We use threadsDone as a "barrier" to stop threads that finish
+    // first from printing the final value.
+    threadsDone--;
+    while(threadsDone != 0)
+	currentThread->Yield(); 
+    
+    val = SharedVariable; 
+    
+    printf("Thread %d sees final value %d\n", which, val);
+} 
+
+#elif defined(HW1_LOCKS)
+Lock *testLock;
+void SimpleThread(int which) 
+{ 
+    if(testLock == NULL)
+    {
+	DEBUG('t', "USING LOCKS\n");
+	testLock = new  Lock("test");
+    }
+    int num, val; 
+    
+    for(num = 0; num < 5; num++) 
+    { 
+	testLock->Acquire();
+	
+	val = SharedVariable; 
+	printf("*** thread %d sees value %d\n", which, val); 
+	currentThread->Yield(); 
+	SharedVariable = val+1; 
+	
+	testLock->Release();
+	
+	currentThread->Yield(); 
+    } 
+    
+    //We use threadsDone as a "barrier" to stop threads that finish
+    // first from printing the final value.
+    threadsDone--;
+    while(threadsDone != 0)
+    {
+	DEBUG('t', "threadsDone = %d\n", threadsDone);
+	currentThread->Yield(); 
+    }
+    val = SharedVariable; 
+    
+    printf("Thread %d sees final value %d\n", which, val);
 }
 #endif
-#endif 
 
+void 
+ThreadTest(int n)
+{
+    int i;
+    threadsDone = n+1;
+    DEBUG('t', "threadsDone = %d\n", threadsDone);
+    for(i = 0; i < n; i++)
+    {
+	Thread *t = new Thread("forked thread");
+	t->Fork(SimpleThread, i + 1);
+    }
+    SimpleThread(0);
+}
+
+
+#else
 //----------------------------------------------------------------------
 // ThreadTest1
 // 	Set up a ping-pong between two threads, by forking a thread 
 //	to call SimpleThread, and then calling SimpleThread ourselves.
 //----------------------------------------------------------------------
-
 void
 ThreadTest1()
 {
@@ -138,22 +150,6 @@ ThreadTest1()
 // ThreadTest
 // 	Invoke a test routine.
 //----------------------------------------------------------------------
-
-#if defined(CHANGED) && defined(THREADS)
-void 
-ThreadTest(int n)
-{
-	int i;
-	threadsDone = n+1;
-	DEBUG('t', "threadsDone = %d\n", threadsDone);
-        for(i = 0; i < n; i++)
-        {
-	        Thread *t = new Thread("forked thread");
-                t->Fork(SimpleThread, i + 1);
-        }
-        SimpleThread(0);
-}
-#endif
 void
 ThreadTest()
 {
@@ -166,3 +162,4 @@ ThreadTest()
 	break;
     }
 }
+#endif

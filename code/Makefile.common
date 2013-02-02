@@ -25,13 +25,13 @@
 # All rights reserved.  See copyright.h for copyright notice and limitation 
 # of liability and disclaimer of warranty provisions.
 
-CFLAGS = -g -Wall -Wshadow -fwritable-strings $(INCPATH) $(DEFINES) -DCHANGED $(HOST) 
+CFLAGS = -g -Wall -Wshadow -fwritable-strings $(INCPATH) $(DEFINES)$(HOST) 
 
 # These definitions may change as the software is updated.
 # Some of them are also system dependent
 CPP= gcc -E
-CC = g++
-LD = g++
+CC = g++-3.4
+LD = g++-3.4
 AS = as
 
 PROGRAM = nachos
@@ -128,7 +128,7 @@ switch.o: ../threads/switch.s
 	$(AS) -o switch.o swtch.s
 
 depend: $(CFILES) $(HFILES)
-	$(CC) $(INCPATH) $(DEFINES)-DCHANGED $(HOST) -M $(CFILES) > makedep
+	$(CC) $(INCPATH) $(DEFINES) $(HOST) -M $(CFILES) > makedep
 	echo '/^# DO NOT DELETE THIS LINE/+2,$$d' >eddep
 	echo '$$r makedep' >>eddep
 	echo 'w' >>eddep

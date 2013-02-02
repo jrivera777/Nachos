@@ -59,7 +59,7 @@ extern int testnum;
 #endif
 
 // External functions used by this file
-#ifdef CHANGED
+#if defined(CHANGED) && defined(THREADS)
 extern void ThreadTest(int n);
 #endif
 extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
@@ -104,7 +104,8 @@ main(int argc, char **argv)
       }
     }
     #ifdef CHANGED
-        ThreadTest(4);
+    ThreadTest(4);
+    DEBUG('t', "***CHANGED DEFINED!!!\n");
     #else
         ThreadTest();
     #endif

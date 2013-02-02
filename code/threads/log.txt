@@ -7,7 +7,7 @@ Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
 threadsDone = 5
-Forking thread "forked thread" with func = 0x804a7cc, arg = 1
+Forking thread "forked thread" with func = 0x804a8c4, arg = 1
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -18,7 +18,7 @@ Time: 20, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-Forking thread "forked thread" with func = 0x804a7cc, arg = 2
+Forking thread "forked thread" with func = 0x804a8c4, arg = 2
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -29,7 +29,7 @@ Time: 30, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-Forking thread "forked thread" with func = 0x804a7cc, arg = 3
+Forking thread "forked thread" with func = 0x804a8c4, arg = 3
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -40,7 +40,7 @@ Time: 40, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-Forking thread "forked thread" with func = 0x804a7cc, arg = 4
+Forking thread "forked thread" with func = 0x804a8c4, arg = 4
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -1611,6 +1611,7 @@ Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
 Thread 0 sees final value 25
+***CHANGED DEFINED!!!
 	interrupts: on -> off
 Finishing thread "main"
 Sleeping thread "main"

@@ -7,7 +7,7 @@ Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
 threadsDone = 5
-Forking thread "forked thread" with func = 0x804a8c4, arg = 1
+Forking thread "forked thread" with func = 0x804a8b0, arg = 1
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -18,7 +18,7 @@ Time: 20, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-Forking thread "forked thread" with func = 0x804a8c4, arg = 2
+Forking thread "forked thread" with func = 0x804a8b0, arg = 2
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -29,7 +29,7 @@ Time: 30, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-Forking thread "forked thread" with func = 0x804a8c4, arg = 3
+Forking thread "forked thread" with func = 0x804a8b0, arg = 3
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -40,7 +40,7 @@ Time: 40, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-Forking thread "forked thread" with func = 0x804a8c4, arg = 4
+Forking thread "forked thread" with func = 0x804a8b0, arg = 4
 	interrupts: on -> off
 Putting thread forked thread on ready list.
 	interrupts: off -> on
@@ -51,8 +51,7 @@ Time: 50, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-USING LOCKS
-****Constructed Lock: test
+USING SEMAPHORES
 	interrupts: on -> off
 	interrupts: off -> on
 
@@ -1137,7 +1136,6 @@ Time: 940, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 4
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1174,7 +1172,6 @@ Time: 970, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 4
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1202,7 +1199,6 @@ Time: 990, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 3
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1216,7 +1212,6 @@ Time: 1000, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 3
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1253,7 +1248,6 @@ Time: 1030, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 3
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1267,7 +1261,6 @@ Time: 1040, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 3
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1295,7 +1288,6 @@ Time: 1060, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 2
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1309,7 +1301,6 @@ Time: 1070, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 2
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1323,7 +1314,6 @@ Time: 1080, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 2
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1360,7 +1350,6 @@ Time: 1110, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 2
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1374,7 +1363,6 @@ Time: 1120, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 2
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1388,7 +1376,6 @@ Time: 1130, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 2
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1416,7 +1403,6 @@ Time: 1150, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1430,7 +1416,6 @@ Time: 1160, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1444,7 +1429,6 @@ Time: 1170, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1458,7 +1442,6 @@ Time: 1180, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1494,7 +1477,6 @@ Time: 1210, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1508,7 +1490,6 @@ Time: 1220, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1522,7 +1503,6 @@ Time: 1230, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "forked thread"
 Putting thread forked thread on ready list.
@@ -1536,7 +1516,6 @@ Time: 1240, interrupts off
 Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
-threadsDone = 1
 	interrupts: on -> off
 Yielding thread "main"
 Putting thread main on ready list.
@@ -1611,7 +1590,6 @@ Pending interrupts:
 End of pending interrupts
 	interrupts: off -> on
 Thread 0 sees final value 25
-***CHANGED DEFINED!!!
 	interrupts: on -> off
 Finishing thread "main"
 Sleeping thread "main"

@@ -9,13 +9,13 @@
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
-
 #include "copyright.h"
 #include "system.h"
 #include "synch.h"
+
 // testnum is set in main.cc
 int testnum = 1;
-
+int threadsDone;
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -24,22 +24,8 @@ int testnum = 1;
 //	"which" is simply a number identifying the thread, for debugging
 //	purposes.
 //----------------------------------------------------------------------
-#ifndef CHANGED
-void
-SimpleThread(int which)
-{
-    int num;
-    
-    for (num = 0; num < 5; num++) {
-	printf("*** thread %d looped %d times\n", which, num);
-        currentThread->Yield();
-    }
-} 
-#endif
-#if defined(CHANGED) && defined(THREADS)
+#if defined(CHANGED) && defined(HW1_SEMAPHORES)
 int SharedVariable; 
-int threadsDone;
-#ifdef HW1_SEMAPHORES
 Semaphore *s;
 void SimpleThread(int which) 
 { 
@@ -69,13 +55,12 @@ void SimpleThread(int which)
     threadsDone--;
     while(threadsDone != 0)
 	currentThread->Yield(); 
-    
     val = SharedVariable; 
     
     printf("Thread %d sees final value %d\n", which, val);
 } 
-
-#elif defined(HW1_LOCKS)
+#elif defined(CHANGED) &&  defined(HW1_LOCKS)
+int SharedVariable; 
 Lock *testLock;
 void SimpleThread(int which) 
 { 
@@ -104,16 +89,54 @@ void SimpleThread(int which)
     // first from printing the final value.
     threadsDone--;
     while(threadsDone != 0)
-    {
-	DEBUG('t', "threadsDone = %d\n", threadsDone);
 	currentThread->Yield(); 
-    }
     val = SharedVariable; 
     
     printf("Thread %d sees final value %d\n", which, val);
 }
+#elif defined(CHANGED) && defined(HW1_ELEVATOR)
+#define MAX_CAPACITY 5
+
+struct Floor
+{
+    Condition *cond;
+    int numWaiting;
+};
+
+struct Floor *floors;
+void Elevator(int numFloors)
+{
+    int i;
+    floors = new struct Floor[numFloors];
+    for(i = 0; i < numFloors; i++)
+    {
+	floors[i].cond = new Condition("floor condition");
+	floors[i].numWaiting = 0;
+    }
+}
+
+void ArrivingGoingFromTo(int atFloor, int toFloor)
+{
+}
+#else
+void
+SimpleThread(int which)
+{
+    int num;
+    
+    for (num = 0; num < 5; num++) {
+	printf("*** thread %d looped %d times\n", which, num);
+        currentThread->Yield();
+    }
+}
 #endif
 
+//----------------------------------------------------------------------
+// ThreadTest1
+// 	Set up a ping-pong between two threads, by forking a thread 
+//	to call SimpleThread, and then calling SimpleThread ourselves.
+//----------------------------------------------------------------------
+#if defined(CHANGED) && defined(THREADS)
 void 
 ThreadTest(int n)
 {
@@ -127,14 +150,8 @@ ThreadTest(int n)
     }
     SimpleThread(0);
 }
+#endif
 
-
-#else
-//----------------------------------------------------------------------
-// ThreadTest1
-// 	Set up a ping-pong between two threads, by forking a thread 
-//	to call SimpleThread, and then calling SimpleThread ourselves.
-//----------------------------------------------------------------------
 void
 ThreadTest1()
 {
@@ -162,4 +179,3 @@ ThreadTest()
 	break;
     }
 }
-#endif

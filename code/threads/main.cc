@@ -105,9 +105,8 @@ main(int argc, char **argv)
     }
     #ifdef CHANGED
     ThreadTest(4);
-    DEBUG('t', "***CHANGED DEFINED!!!\n");
     #else
-        ThreadTest();
+    ThreadTest();
     #endif
 #endif
 

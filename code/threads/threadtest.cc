@@ -110,25 +110,35 @@ SimpleThread(int which)
 
 struct Floor
 {
-    Condition *cond;
-    int numWaiting;
+    Condition *fCond;
+    Lock* fLock;
+    int gettingOn;
+    int gettingOff;
 };
 
 enum Direction {UP, DOWN, NONE};
 
 struct Floor *floors;
+Condition* eleCond;
+Lock* eleLock;
 Direction direction = UP;
 int currFloor;
+int occupied;
 void init_elevator(int numFloors)
 {
     int i;
     floors = new struct Floor[numFloors];
     for(i = 0; i < numFloors; i++)
     {
-	floors[i].cond = new Condition("floor condition");
-	floors[i].numWaiting = 0;
+	floors[i].fCond = new Condition("floor condition");
+	floors[i].fLock = new Lock("floor lock");
+	floors[i].gettingOn = 0;
+	floors[i].gettingOff = 0;
     }
+    eleCond = new Condition("elevator condition");
+    eleLock = new Lock("elevator lock");
     currFloor = 0;
+    occupied = 0;
     direction = UP;
 }
 
@@ -136,6 +146,9 @@ void run_elevator(int numFloors)
 {
     while(1)
     {
+	if(direction == NONE)
+	    break;
+
 	int i;
 	for(i = 0; i < 50; i++); //elevator moving
 	printf("Elevator arrives at floor %d.\n", currFloor + 1);
@@ -144,6 +157,11 @@ void run_elevator(int numFloors)
 	    direction = DOWN;
 	else if(currFloor == 0)
 	    direction = UP;
+
+	//Attempt to let people off elevator
+	eleLock->Acquire();
+	eleCond->Broadcast(eleLock);
+	eleLock->Release();
 
 	if(direction == UP)
 	{
@@ -163,6 +181,7 @@ void Elevator(int numFloors)
 {
     Thread* elevator = new Thread("Elevator Thread");
     init_elevator(numFloors);
+    printf("***Set up floor data.\n");
     elevator->Fork(run_elevator, numFloors);
 }
 

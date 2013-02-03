@@ -97,16 +97,115 @@ Semaphore::V()
     (void) interrupt->SetLevel(oldLevel);
 }
 
-// Dummy functions -- so we can compile our later assignments 
-// Note -- without a correct implementation of Condition::Wait(), 
-// the test case in the network assignment won't work!
+
+#if defined(CHANGED)
+Lock::Lock(char* debugName) 
+{
+    name = debugName;
+    queue = new List;
+    value = 1;
+    heldBy = NULL;
+}
+Lock::~Lock() 
+{
+    delete queue;
+    heldBy = NULL;
+}
+void Lock::Acquire() 
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    while(value == 0)
+    {
+	queue->Append((void*)currentThread);
+	currentThread->Sleep();
+    }
+    value--;
+    heldBy =(Thread*)currentThread;
+    DEBUG('t', "***%s acquired the %s\n", heldBy->getName(), name);
+
+    interrupt->SetLevel(oldLevel);
+}
+void Lock::Release() 
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    if(isHeldByCurrentThread())
+    {
+	Thread* awake = (Thread*) queue->Remove();
+	if(awake != NULL)
+	    scheduler->ReadyToRun(awake);
+	value++;
+	DEBUG('t',"***%s released  %s\n", heldBy->getName(), name);
+	heldBy = NULL;
+    }
+
+    interrupt->SetLevel(oldLevel);
+}
+bool Lock::isHeldByCurrentThread()
+{
+    return heldBy == currentThread;
+}
+
+#else
 Lock::Lock(char* debugName) {}
 Lock::~Lock() {}
 void Lock::Acquire() {}
 void Lock::Release() {}
+#endif
 
+#if defined(CHANGED)
+Condition::Condition(char* debugName) 
+{ 
+    name = debugName;
+    blocked = new List;
+}
+Condition::~Condition() 
+{ 
+    delete blocked;
+}
+void Condition::Wait(Lock* conditionLock) 
+{
+    if(conditionLock->isHeldByCurrentThread())
+    {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	conditionLock->Release();
+	DEBUG('t',"***%s about to wait on %s\n", currentThread->getName(), name);
+	blocked->Append((void*)currentThread);
+	currentThread->Sleep();
+	interrupt->SetLevel(oldLevel); 
+
+	conditionLock->Acquire();
+    }
+}
+void Condition::Signal(Lock* conditionLock) 
+{ 
+    if(conditionLock->isHeldByCurrentThread())
+    {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	Thread* awake = (Thread*)blocked->Remove();
+	if(awake != NULL)
+	    scheduler->ReadyToRun(awake);
+	DEBUG('t',"***%s signals on %s\n", currentThread->getName(), name);
+	interrupt->SetLevel(oldLevel);
+    }
+}
+void Condition::Broadcast(Lock* conditionLock) 
+{ 
+    if(conditionLock->isHeldByCurrentThread())
+    {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	Thread* curr;
+	while((curr = (Thread*)blocked->Remove()) != NULL)
+	    scheduler->ReadyToRun(curr);
+	DEBUG('t',"***%s broadcasts on %s\n", currentThread->getName(), name);
+	interrupt->SetLevel(oldLevel);
+    }
+}
+#else
 Condition::Condition(char* debugName) { }
 Condition::~Condition() { }
 void Condition::Wait(Lock* conditionLock) { ASSERT(FALSE); }
 void Condition::Signal(Lock* conditionLock) { }
 void Condition::Broadcast(Lock* conditionLock) { }
+#endif

@@ -1,2 +1,3 @@
 *.o
-nachos
+*.coff
+code/*/nachos

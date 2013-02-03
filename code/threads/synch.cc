@@ -100,112 +100,13 @@ Semaphore::V()
 // Dummy functions -- so we can compile our later assignments 
 // Note -- without a correct implementation of Condition::Wait(), 
 // the test case in the network assignment won't work!
-#ifdef CHANGED
-Lock::Lock(void)
-{
-	DEBUG('t', "****Constructed Lock: %s\n", name);
-}
-
-Lock::Lock(char* debugName) 
-{
-	name = debugName;
-	value = 1;
-	queue = new List;
-	heldBy = NULL;
-	DEBUG('t', "****Constructed Lock: %s\n", name);
-}
-Lock::~Lock() 
-{
-	delete queue;
-	heldBy = NULL;
-}
-void Lock::Acquire() 
-{
-	IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
-	
-	while (value == 0) 
-	{ 			
-		queue->Append((void *)currentThread);	
-		currentThread->Sleep();
-	}
-	value--; 				
-	heldBy = (Thread*)currentThread;
-	(void) interrupt->SetLevel(oldLevel);	// re-enable interrupts
-}
-void Lock::Release() 
-{	
-	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	
-	if(isHeldByCurrentThread())
-	{
-		Thread* awake = (Thread*) queue->Remove(); //wake one thread waiting on the lock
-		if(awake != NULL)
-			scheduler->ReadyToRun(awake);
-		value++;
-		heldBy = NULL;  //current thread no longer owns lock
-	}
-	interrupt->SetLevel(oldLevel);
-}
-bool Lock::isHeldByCurrentThread()
-{
-	return heldBy == currentThread;
-}
-#else
 Lock::Lock(char* debugName) {}
 Lock::~Lock() {}
 void Lock::Acquire() {}
 void Lock::Release() {}
-#endif
 
-#ifdef CHANGED
-Condition::Condition(char* debugName) 
-{ 
-    name = debugName;
-    blocked = new List;
-}
-Condition::~Condition() 
-{ 
-    delete blocked;
-}
-void Condition::Wait(Lock* conditionLock) 
-{
-    if(conditionLock->isHeldByCurrentThread()) //Not sure if we need this check.  Synch.h description seems to suggest it.
-    {
-        conditionLock->Release();
-
-	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-        blocked->Append((Thread*)currentThread);
-        currentThread->Sleep();
-	interrupt->SetLevel(oldLevel);
-        conditionLock->Acquire();
-    }
-}
-void Condition::Signal(Lock* conditionLock) 
-{ 
-	if(conditionLock->isHeldByCurrentThread()) //same issue as Wait()
-	{
-		IntStatus oldLevel = interrupt->SetLevel(IntOff);
-		Thread* awake = (Thread*)blocked->Remove();
-		if(awake != NULL)
-			scheduler->ReadyToRun(awake);
-		interrupt->SetLevel(oldLevel);
-	}
-}
-void Condition::Broadcast(Lock* conditionLock) 
-{ 
-	if(conditionLock->isHeldByCurrentThread()) //same issue as Wait()
-	{
-		IntStatus oldLevel = interrupt->SetLevel(IntOff);
-		Thread* curr;
-		while((curr =(Thread*) blocked->Remove()) != NULL)
-			scheduler->ReadyToRun(curr);
-		interrupt->SetLevel(oldLevel);
-	}
-}
-#else
 Condition::Condition(char* debugName) { }
 Condition::~Condition() { }
 void Condition::Wait(Lock* conditionLock) { ASSERT(FALSE); }
 void Condition::Signal(Lock* conditionLock) { }
 void Condition::Broadcast(Lock* conditionLock) { }
-#endif

@@ -7,7 +7,7 @@
 # All rights reserved.  See copyright.h for copyright notice and limitation 
 # of liability and disclaimer of warranty provisions.
 
-DEFINES = -DTHREADS -DCHANGED -DHW1_LOCKS
+DEFINES = -DTHREADS -DCHANGED -DHW1_ELEVATOR
 INCPATH = -I../threads -I../machine
 HFILES = $(THREAD_H)
 CFILES = $(THREAD_C)
@@ -134,8 +134,7 @@ threadtest.o: ../threads/threadtest.cc ../threads/copyright.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/thread.h ../threads/scheduler.h \
   ../threads/list.h ../machine/interrupt.h ../threads/list.h \
-  ../machine/stats.h ../machine/timer.h ../threads/utility.h \
-  ../threads/synch.h
+  ../machine/stats.h ../machine/timer.h ../threads/utility.h
 interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../machine/interrupt.h ../threads/list.h ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \

@@ -95,7 +95,18 @@ void SimpleThread(int which)
     printf("Thread %d sees final value %d\n", which, val);
 }
 #elif defined(CHANGED) && defined(HW1_ELEVATOR)
-#define MAX_CAPACITY 5
+void
+SimpleThread(int which)
+{
+    int num;
+    
+    for (num = 0; num < 5; num++) {
+	printf("*** thread %d looped %d times\n", which, num);
+        currentThread->Yield();
+    }
+}
+//****Elevator Stuff Starts Here****
+#define ELEVATOR_CAPACITY 5
 
 struct Floor
 {
@@ -103,8 +114,12 @@ struct Floor
     int numWaiting;
 };
 
+enum Direction {UP, DOWN, NONE};
+
 struct Floor *floors;
-void Elevator(int numFloors)
+Direction direction = UP;
+int currFloor;
+void init_elevator(int numFloors)
 {
     int i;
     floors = new struct Floor[numFloors];
@@ -113,6 +128,42 @@ void Elevator(int numFloors)
 	floors[i].cond = new Condition("floor condition");
 	floors[i].numWaiting = 0;
     }
+    currFloor = 0;
+    direction = UP;
+}
+
+void run_elevator(int numFloors)
+{
+    while(1)
+    {
+	int i;
+	for(i = 0; i < 50; i++); //elevator moving
+	printf("Elevator arrives at floor %d.\n", currFloor + 1);
+
+	if(currFloor == numFloors - 1)
+	    direction = DOWN;
+	else if(currFloor == 0)
+	    direction = UP;
+
+	if(direction == UP)
+	{
+	    currFloor++;
+	}
+	else if(direction == DOWN)
+	{
+	    currFloor--;
+	}
+	else
+	    break;
+    }
+    printf("Elevator needs Maintenance.\n");
+}
+
+void Elevator(int numFloors)
+{
+    Thread* elevator = new Thread("Elevator Thread");
+    init_elevator(numFloors);
+    elevator->Fork(run_elevator, numFloors);
 }
 
 void ArrivingGoingFromTo(int atFloor, int toFloor)
@@ -130,12 +181,6 @@ SimpleThread(int which)
     }
 }
 #endif
-
-//----------------------------------------------------------------------
-// ThreadTest1
-// 	Set up a ping-pong between two threads, by forking a thread 
-//	to call SimpleThread, and then calling SimpleThread ourselves.
-//----------------------------------------------------------------------
 #if defined(CHANGED) && defined(THREADS)
 void 
 ThreadTest(int n)
@@ -152,6 +197,11 @@ ThreadTest(int n)
 }
 #endif
 
+//----------------------------------------------------------------------
+// ThreadTest1
+// 	Set up a ping-pong between two threads, by forking a thread 
+//	to call SimpleThread, and then calling SimpleThread ourselves.
+//----------------------------------------------------------------------
 void
 ThreadTest1()
 {

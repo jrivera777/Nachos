@@ -65,7 +65,6 @@ class Semaphore {
 
 class Lock {
   public:
-    Lock();
     Lock(char* debugName);  		// initialize lock to be FREE
     ~Lock();				// deallocate lock
     char* getName() { return name; }	// debugging assist
@@ -80,9 +79,7 @@ class Lock {
 
   private:
     char* name;				// for debugging
-    int value;
-    List* queue;
-    Thread* heldBy;
+    // plus some other stuff you'll need to define
 };
 
 // The following class defines a "condition variable".  A condition
@@ -134,6 +131,6 @@ class Condition {
 
   private:
     char* name;
-    List* blocked; //threads waiting on condition
+    // plus some other stuff you'll need to define
 };
 #endif // SYNCH_H

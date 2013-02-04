@@ -166,7 +166,7 @@ Condition::~Condition()
 }
 void Condition::Wait(Lock* conditionLock) 
 {
-    if(conditionLock->isHeldByCurrentThread())
+     if(conditionLock->isHeldByCurrentThread())
     {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	conditionLock->Release();

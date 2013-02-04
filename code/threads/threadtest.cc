@@ -110,10 +110,15 @@ SimpleThread(int which)
 
 struct Floor
 {
-    Condition *fCond;
-    Lock* fLock;
     int gettingOn;
     int gettingOff;
+};
+
+struct Person
+{
+    int id;
+    int atFloor;
+    int toFloor;
 };
 
 enum Direction {UP, DOWN, NONE};
@@ -124,58 +129,84 @@ Lock* eleLock;
 Direction direction = UP;
 int currFloor;
 int occupied;
+
+void printFloorStatus(Floor* floors, int numFloors)
+{
+    int i;
+    for(i = 0; i < numFloors; i++)
+    {
+	printf("Floor %d - gettingOn = %d, gettingOff = %d.\n", i+1, 
+	       floors[i].gettingOn, floors[i].gettingOff);
+    }
+}
+
 void init_elevator(int numFloors)
 {
     int i;
     floors = new struct Floor[numFloors];
     for(i = 0; i < numFloors; i++)
     {
-	floors[i].fCond = new Condition("floor condition");
-	floors[i].fLock = new Lock("floor lock");
 	floors[i].gettingOn = 0;
 	floors[i].gettingOff = 0;
     }
     eleCond = new Condition("elevator condition");
     eleLock = new Lock("elevator lock");
-    currFloor = 0;
+    currFloor = -1;
     occupied = 0;
     direction = UP;
 }
 
 void run_elevator(int numFloors)
 {
-    while(1)
+    do
     {
-	if(direction == NONE)
-	    break;
-
+	eleLock->Acquire();
+	//Move to next floor
 	int i;
-	for(i = 0; i < 50; i++); //elevator moving
+	for(i = 0; i < 50000000; i++); //elevator moving
+
+	if(direction == UP)
+       	    currFloor++;
+	
+	else if(direction == DOWN)
+	    currFloor--;
+	else
+	    break;
 	printf("Elevator arrives at floor %d.\n", currFloor + 1);
+	eleLock->Release();
+
+	currentThread->Yield(); //give people a chance to do stuff
 
 	if(currFloor == numFloors - 1)
 	    direction = DOWN;
 	else if(currFloor == 0)
 	    direction = UP;
 
-	//Attempt to let people off elevator
+	//printFloorStatus(floors, numFloors);
+	
+        //Let people off elevator
 	eleLock->Acquire();
 	eleCond->Broadcast(eleLock);
 	eleLock->Release();
 
-	if(direction == UP)
-	{
-	    currFloor++;
-	}
-	else if(direction == DOWN)
-	{
-	    currFloor--;
-	}
-	else
-	    break;
+	eleLock->Acquire();
+	while(floors[currFloor].gettingOff > 0)
+	    eleCond->Wait(eleLock);
+	eleLock->Release();
+	
+	eleLock->Acquire();
+	//Let people waiting on current floor get on elevator
+	eleCond->Broadcast(eleLock);
+	while(floors[currFloor].gettingOn > 0 && occupied < ELEVATOR_CAPACITY)
+	    eleCond->Wait(eleLock);    
+	eleLock->Release();
     }
+    while(1);
     printf("Elevator needs Maintenance.\n");
 }
+
+
+
 
 void Elevator(int numFloors)
 {
@@ -185,9 +216,56 @@ void Elevator(int numFloors)
     elevator->Fork(run_elevator, numFloors);
 }
 
+void run_person(int p)
+{
+    Person *person = (Person*)p;
+
+    //Arrive at floor
+    eleLock->Acquire();
+    floors[person->atFloor-1].gettingOn++;
+    eleLock->Release();
+    printf("Person %d wants to go to floor %d from floor %d.\n", 
+	   person->id, person->toFloor, person->atFloor);
+
+    //Wait for the elevator to arrive and have space
+    eleLock->Acquire();
+    while(currFloor != person->atFloor-1 || occupied == ELEVATOR_CAPACITY)
+	eleCond->Wait(eleLock);
+    eleLock->Release();
+    
+    //Get on elevator and wait to arrive at desired floor
+    eleLock->Acquire();
+    floors[person->toFloor-1].gettingOff++;
+    floors[person->atFloor-1].gettingOn--;
+    occupied++;
+    printf("Person %d got into the elevator at floor %d.\n", person->id, currFloor + 1);
+    eleCond->Broadcast(eleLock);
+    eleLock->Release();
+
+    eleLock->Acquire();
+    while(currFloor != person->toFloor-1)
+	eleCond->Wait(eleLock);
+   
+    //Get off on desired Floor
+    occupied--;
+    printf("Person %d got out of the elevator at floor %d.\n", person->id, currFloor+1); 
+    floors[person->toFloor-1].gettingOff--;
+    eleCond->Broadcast(eleLock);
+    eleLock->Release();
+}
+int nextID;
 void ArrivingGoingFromTo(int atFloor, int toFloor)
 {
+    Thread* person = new Thread("Person Thread");
+    Person *p = new Person;
+    p->atFloor = atFloor;
+    p->toFloor = toFloor;
+    p->id = nextID++;
+    printf("***Initialized person!\n");
+    person->Fork(run_person,(int)p);
 }
+
+
 #else
 void
 SimpleThread(int which)

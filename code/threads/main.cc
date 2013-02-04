@@ -63,6 +63,7 @@ extern void ThreadTest(int n);
 #endif
 #if defined(HW1_ELEVATOR)
 extern void Elevator(int numFloors);
+extern void ArrivingGoingFromTo(int atFloor, int toFloor);
 #endif
 extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
@@ -107,7 +108,14 @@ main(int argc, char **argv)
     }
 #ifdef CHANGED
 #ifdef HW1_ELEVATOR
-    Elevator(4);
+    Elevator(5);
+    ArrivingGoingFromTo(1, 4);
+    ArrivingGoingFromTo(1, 4);
+    ArrivingGoingFromTo(1, 2);
+    ArrivingGoingFromTo(3, 4);
+    ArrivingGoingFromTo(4, 1);
+    ArrivingGoingFromTo(2, 3);
+
 #else
     ThreadTest(4);
 #endif

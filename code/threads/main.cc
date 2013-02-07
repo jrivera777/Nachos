@@ -108,14 +108,16 @@ main(int argc, char **argv)
     }
 #ifdef CHANGED
 #ifdef HW1_ELEVATOR
-    Elevator(5);
+    Elevator(10);
     ArrivingGoingFromTo(1, 4);
     ArrivingGoingFromTo(1, 4);
-    ArrivingGoingFromTo(1, 2);
+    ArrivingGoingFromTo(1, 3);
+    ArrivingGoingFromTo(1, 6);
+    ArrivingGoingFromTo(2, 3);
+    ArrivingGoingFromTo(1, 9);
     ArrivingGoingFromTo(3, 4);
     ArrivingGoingFromTo(4, 1);
-    ArrivingGoingFromTo(2, 3);
-
+    ArrivingGoingFromTo(10, 5);
 #else
     ThreadTest(4);
 #endif

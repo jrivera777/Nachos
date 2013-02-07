@@ -100,7 +100,8 @@ SimpleThread(int which)
 {
     int num;
     
-    for (num = 0; num < 5; num++) {
+    for (num = 0; num < 5; num++) 
+    {
 	printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
     }
@@ -130,16 +131,6 @@ Direction direction = UP;
 int currFloor;
 int occupied;
 
-void printFloorStatus(Floor* floors, int numFloors)
-{
-    int i;
-    for(i = 0; i < numFloors; i++)
-    {
-	printf("Floor %d - gettingOn = %d, gettingOff = %d.\n", i+1, 
-	       floors[i].gettingOn, floors[i].gettingOff);
-    }
-}
-
 void init_elevator(int numFloors)
 {
     int i;
@@ -160,59 +151,63 @@ void run_elevator(int numFloors)
 {
     do
     {
-	eleLock->Acquire();
 	//Move to next floor
+	eleLock->Acquire();
+
 	int i;
 	for(i = 0; i < 50000000; i++); //elevator moving
 
 	if(direction == UP)
        	    currFloor++;
-	
 	else if(direction == DOWN)
 	    currFloor--;
 	else
 	    break;
+
 	printf("Elevator arrives at floor %d.\n", currFloor + 1);
+
 	eleLock->Release();
 
-	currentThread->Yield(); //give people a chance to do stuff
+        //give people a chance to do stuff(when random seed is NOT used)
+	currentThread->Yield(); 
 
 	if(currFloor == numFloors - 1)
 	    direction = DOWN;
 	else if(currFloor == 0)
 	    direction = UP;
 
-	//printFloorStatus(floors, numFloors);
-	
         //Let people off elevator
 	eleLock->Acquire();
+
 	eleCond->Broadcast(eleLock);
+
 	eleLock->Release();
 
 	eleLock->Acquire();
+
 	while(floors[currFloor].gettingOff > 0)
 	    eleCond->Wait(eleLock);
+
 	eleLock->Release();
-	
+
+	//Let people waiting on current floor get on elevator	
 	eleLock->Acquire();
-	//Let people waiting on current floor get on elevator
+
 	eleCond->Broadcast(eleLock);
 	while(floors[currFloor].gettingOn > 0 && occupied < ELEVATOR_CAPACITY)
 	    eleCond->Wait(eleLock);    
+
 	eleLock->Release();
     }
     while(1);
     printf("Elevator needs Maintenance.\n");
 }
 
-
-
-
 void Elevator(int numFloors)
 {
     Thread* elevator = new Thread("Elevator Thread");
     init_elevator(numFloors);
-    printf("***Set up floor data.\n");
+    DEBUG('t', "***Set up floor data.\n");
     elevator->Fork(run_elevator, numFloors);
 }
 
@@ -222,27 +217,34 @@ void run_person(int p)
 
     //Arrive at floor
     eleLock->Acquire();
+
     floors[person->atFloor-1].gettingOn++;
-    eleLock->Release();
     printf("Person %d wants to go to floor %d from floor %d.\n", 
 	   person->id, person->toFloor, person->atFloor);
 
+    eleLock->Release();
+
     //Wait for the elevator to arrive and have space
     eleLock->Acquire();
+
     while(currFloor != person->atFloor-1 || occupied == ELEVATOR_CAPACITY)
 	eleCond->Wait(eleLock);
+
     eleLock->Release();
     
     //Get on elevator and wait to arrive at desired floor
     eleLock->Acquire();
+
     floors[person->toFloor-1].gettingOff++;
     floors[person->atFloor-1].gettingOn--;
     occupied++;
     printf("Person %d got into the elevator at floor %d.\n", person->id, currFloor + 1);
     eleCond->Broadcast(eleLock);
+
     eleLock->Release();
 
     eleLock->Acquire();
+
     while(currFloor != person->toFloor-1)
 	eleCond->Wait(eleLock);
    
@@ -251,6 +253,7 @@ void run_person(int p)
     printf("Person %d got out of the elevator at floor %d.\n", person->id, currFloor+1); 
     floors[person->toFloor-1].gettingOff--;
     eleCond->Broadcast(eleLock);
+
     eleLock->Release();
 }
 int nextID;
@@ -261,11 +264,9 @@ void ArrivingGoingFromTo(int atFloor, int toFloor)
     p->atFloor = atFloor;
     p->toFloor = toFloor;
     p->id = nextID++;
-    printf("***Initialized person!\n");
+    DEBUG('t', "***Initialized person!\n");
     person->Fork(run_person,(int)p);
 }
-
-
 #else
 void
 SimpleThread(int which)

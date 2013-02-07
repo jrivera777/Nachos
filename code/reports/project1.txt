@@ -7,30 +7,118 @@ Project 1
 
 ***Excercise 1: Simple Threading
 
-We implemented the ThreadTest(int n) function as asked. This simply creates N new threads instead of one.
-Each thread loops 5 times as expected, and the -rs command makes them interleave more randomly.
+We implemented the ThreadTest(int n) function as asked. This simply creates N 
+new threads instead of one. Each thread loops 5 times as expected, and the -rs 
+command makes them interleave more randomly. 
 
-For the next step we used semaphores to synchronize the threads running SimpleThread(). If synchronization is not done properly,
-the SharedVariable will be incremented to the incorrect number. This occurs because context switches may occur
-before any assembly instructions. This means one thread can attempt to update a variable's value, but another
-thread can retrieve the same variable's value before the othe thread's update is complete. Outdated memory
-retrieval messes up the expected values. We use semaphors, locks, and conditions to stop such occurrances.
+For the next step we used semaphores to synchronize the threads running 
+SimpleThread(). If synchronization is not done properly, the SharedVariable will
+be incremented to the incorrect number. This occurs because context switches may
+occur before any assembly instructions. This means one thread can attempt to 
+update a variable's value, but another thread can retrieve the same variable's 
+value before the othe thread's update is complete. Outdated memory retrieval 
+messes up the expected values. We use semaphors, locks, and conditions to stop 
+such occurrances.
 
-If the threads are properly synchronized, N threads are running, and each loops 5 times, we should expect the value of
-SharedVariable to be 5N when all threads have finished running(e.g. 3 threads makes SharedVariable end up as 15).
-With out synchronization the value is usually and incorrectly 5.
-
-Using Semaphores to synchronize the SimpleThread() function, the correct value is obtained. Random seeds do not change this either.
-Essentially, the critical section (the retrieval of the SharedValue and it's increment) is preceded by a P() call and
-followed by a V() call. Finally, a "barrier" is put up to stop early finishing threads from displaying the wrong result.
+If the threads are properly synchronized, N threads are running, and each loops 
+5 times, we should expect the value of SharedVariable to be 5N when all threads
+have finished running(e.g. 3 threads makes SharedVariable end up as 15). 
+With out synchronization the value is usually and incorrectly 5. 
+Using Semaphores to synchronize the SimpleThread() function, the correct value 
+is obtained. Random seeds do not change this either. Essentially, the 
+critical section (the retrieval of the SharedValue and it's increment) is 
+preceded by a P() call and followed by a V() call. Finally, a "barrier" is 
+put up to stop early finishing threads from displaying the wrong result.
 
 
 ***Exercise 2: Implementing Locks
 
-We implemented Locks to be near indentical to the Semaphore implementation. The primary difference is the internal value contained
-within it. It is always initialized to one. This allows only one thread to acquire the Lock at a time. The Lock also keeps
-track of which thread acquired it. For testing, we implemented the same SimpleThread() function using Locks instead of Semaphores.
-The results were still the same as before. The SharedVariable sums up to 5N (N being the number of threads) as expected. Using
-the random seed option does not affect this.
+We implemented Locks to be near indentical to the Semaphore implementation. 
+The primary difference is the internal value contained within it. 
+It is always initialized to one. This allows only one thread to acquire 
+the Lock at a time. The Lock also keeps track of which thread acquired 
+it. Only the thread holding the Lock can successfully release it.
+For testing, we implemented the same SimpleThread() function using 
+Locks instead of Semaphores. The results were still the same as before. 
+The SharedVariable sums up to 5N (N being the number of threads) as expected. 
+Using the random seed option does not affect this.
 
-Similar to the Semaphore solution, the critical section is preceded by an Acquire() call, and follwed by a Release() call.
+Similar to the Semaphore solution, the critical section is preceded by an
+Acquire() call, and followed by a Release() call.
+
+
+***Exercise 3: Implementing Conditions
+
+Conditions are also similar to semaphores and locks in implementation.
+The primary difference is that the condition does not have a value to check
+internally during it's function calls. There is a list of threads waiting
+on the condition though. By waiting, we mean they are put in the
+blocked state via a sleep() call. The Wait() function does this, assuming
+the lock passed in is acquired by the thread calling it. Before putting itself
+to sleep, the thread releases the lock, for use by other threads. Once, another
+thread performs a Signal() or Broadcast(), a thread that was waiting on the 
+condition will be awoken, and attempt to re-acquire the lock. The Signal()
+function wakes a single thread waiting on the condition, while the Broadcast()
+function wakes all threads waiting on the condition. These functions can only
+work successfully if the thread calling them has acquired the Lock 
+passed to them.
+
+Our implementation of conditions seems to be correct. We successfully 
+use them during the next exercise (the elevator problem).  
+
+***Exercise 4: Elevator
+
+We seem to have successfully implemented a simple elevator using conditions
+and locks. Our implementationa uses only one Condition variable 
+and one Lock variable. We have the following sharedvariables:
+    
+    1. An array of Floor structs, where each Floor struct has 2 int variables.
+       One int represents the number of people on a floor wishing to 
+       enter the elevator, and the other the number of people wanting to exit
+       the elevator on that floor.
+    2. The current Floor value.
+    3. The number of people in the elevator.
+
+The use of these shared data must be synchronized. If they are not, errors
+start to occur. A person thread may miss the elevator when it should have
+entered it. People may enter the elevator when it is on the wrong floor, 
+and so on. 
+
+The elevator must acquire the Lock before it changes the floor it is on.
+It then broadcasts, waking every thread waiting on the condition. It then
+waits on the condition while there are still people wanting to get off the
+current floor (known by the floor structure for the current floor). This
+gives person threads a change to get on and off the elevator. 
+The elevator is awakened by every person thread that either gets on the
+elevator or gets off it, allowing it to recheck if there are more people
+getting off on the floor. Once there are no more people getting off, 
+the elevator wakes every thread waiting via a broadcast, and waits 
+on the condition while there are people trying to get on the elevator,
+and there is still room.
+
+A person thread starts by increasing the number of people wanting to get on
+the elevator from the floor it is on via the floor structure representing 
+it's floor. It then waits on the condition while the elevator is 
+not on its floor or the elevator is full.  This allows the elevator to skip
+picking up someone if it is full at the time it arrives on a floor 
+with a person waiting.  Once the person thread is awakened, it 
+"gets on the elevator". This is done by decrementing the number of people 
+getting on on the floor it's at, and increments the getting off value of the
+floor it wants to exit on. It also increases the number of peopel occupying
+the elevator. This is done while still owning the lock. 
+It also broadcasts waking all threads waiting on the condition (possibly 
+and likely including the elevator). It then waits on the condition until
+the current floor is the floor it desired to get off on.  The elevator broadcasts
+everytime it reaches a floor, so the person thread would be woken up at this point.
+Once the elevator reaches the correct floor, and the person threadis woken up,
+it decrements the number of people occupying the elevator as well as the 
+number of people getting off on that floor (in the floor structure).
+
+Our implementation seems to work well, with and without a random seed specified.
+We tested it on varying floor numbers, varying numbers of people threads, and
+with scenarios that make the elevator reach max occupancy and not.
+
+
+Overall, this assigment was a good experience in synchronization programming.
+We see the importance of atomic actions in synchronizing critical sections.
+

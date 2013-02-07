@@ -124,7 +124,7 @@ void Lock::Acquire()
     heldBy =(Thread*)currentThread;
     DEBUG('t', "***%s acquired the %s\n", heldBy->getName(), name);
 
-    interrupt->SetLevel(oldLevel);
+    (void) interrupt->SetLevel(oldLevel);
 }
 void Lock::Release() 
 {
@@ -140,7 +140,7 @@ void Lock::Release()
 	heldBy = NULL;
     }
 
-    interrupt->SetLevel(oldLevel);
+    (void) interrupt->SetLevel(oldLevel);
 }
 bool Lock::isHeldByCurrentThread()
 {
@@ -166,14 +166,14 @@ Condition::~Condition()
 }
 void Condition::Wait(Lock* conditionLock) 
 {
-     if(conditionLock->isHeldByCurrentThread())
+    if(conditionLock->isHeldByCurrentThread())
     {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	conditionLock->Release();
 	DEBUG('t',"***%s about to wait on %s\n", currentThread->getName(), name);
 	blocked->Append((void*)currentThread);
 	currentThread->Sleep();
-	interrupt->SetLevel(oldLevel); 
+	(void) interrupt->SetLevel(oldLevel); 
 
 	conditionLock->Acquire();
     }
@@ -187,7 +187,7 @@ void Condition::Signal(Lock* conditionLock)
 	if(awake != NULL)
 	    scheduler->ReadyToRun(awake);
 	DEBUG('t',"***%s signals on %s\n", currentThread->getName(), name);
-	interrupt->SetLevel(oldLevel);
+	(void) interrupt->SetLevel(oldLevel);
     }
 }
 void Condition::Broadcast(Lock* conditionLock) 
@@ -199,7 +199,7 @@ void Condition::Broadcast(Lock* conditionLock)
 	while((curr = (Thread*)blocked->Remove()) != NULL)
 	    scheduler->ReadyToRun(curr);
 	DEBUG('t',"***%s broadcasts on %s\n", currentThread->getName(), name);
-	interrupt->SetLevel(oldLevel);
+	(void) interrupt->SetLevel(oldLevel);
     }
 }
 #else

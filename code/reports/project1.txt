@@ -5,6 +5,51 @@ Joseph Rivera
 Project 1
 ----------
 
+RUNNING OUR EXERCISES:
+
+To run each exercise the threads/Makefile DEFINES line must be changed 
+to have the appropriate flags set(-DCHANGED, -DHW1_SEMAPHORES, -DHW1_LOCKS,
+-DHW1_ELEVATOR). Then the files must be recompiled. 
+
+To make that easier, we have added a python script named replace.py 
+in the threas folder. The arguments are the flags you want set.
+
+To run the simple thread exercise you would do:
+
+   python replace.py -DCHANGED
+
+To run the semaphore exercise you would do:
+
+   python replace.py -DCHANGED -DHW1_SEMAPHORES
+
+To run the lock exercise you would do:
+
+   python replace.py -DCHANGED -DHW1_LOCKS
+
+To run the elevator exercise you would do:
+
+   python replace.py -DCHANGED -DHW1_ELEVATOR
+
+If you do not put any flags, only -DTHREADS is set, which runs the 
+original two-thread test.
+
+If this is being tested on nachos.cs.fiu.edu, make sure the line
+
+   s += "INCPATH = -I../threads -I../machine\n"
+
+is NOT commented out.
+
+The assignment is set to the unchanged version by default.
+
+This script, along with our assignment seemed to work well in our own 
+environments as well as the nachos.cs.fiu.edu environment. If for whatever
+reason they do not work when you try them, please try changing the 
+threads/Makefile manually, or as suggested in the Project 1 FAQ.  
+
+===========================================================================
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+===========================================================================
+
 ***Excercise 1: Simple Threading
 
 We implemented the ThreadTest(int n) function as asked. This simply creates N 
@@ -116,9 +161,335 @@ number of people getting off on that floor (in the floor structure).
 
 Our implementation seems to work well, with and without a random seed specified.
 We tested it on varying floor numbers, varying numbers of people threads, and
-with scenarios that make the elevator reach max occupancy and not.
+with scenarios that make the elevator reach max occupancy and not. The sample 
+output given is stopped by us, as currently, there is no mechanism 
+in place to stop the elevator from running forever.
 
 
 Overall, this assigment was a good experience in synchronization programming.
 We see the importance of atomic actions in synchronizing critical sections.
 
+==================================================================
+
+Sample output from exercise 1 SimpleThreading:
+
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 2 looped 0 times
+*** thread 3 looped 0 times
+*** thread 4 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 2 looped 1 times
+*** thread 3 looped 1 times
+*** thread 4 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 2 looped 2 times
+*** thread 3 looped 2 times
+*** thread 4 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+*** thread 2 looped 3 times
+*** thread 3 looped 3 times
+*** thread 4 looped 3 times
+*** thread 0 looped 4 times
+*** thread 1 looped 4 times
+*** thread 2 looped 4 times
+*** thread 3 looped 4 times
+*** thread 4 looped 4 times
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 340, idle 0, system 340, user 0
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...
+
+============================================================================
+
+Sample output from exercise 1(Semaphores) with a random seed of 132:
+
+*** thread 0 sees value 0
+*** thread 3 sees value 1
+*** thread 2 sees value 2
+*** thread 4 sees value 3
+*** thread 1 sees value 4
+*** thread 0 sees value 5
+*** thread 3 sees value 6
+*** thread 2 sees value 7
+*** thread 1 sees value 8
+*** thread 4 sees value 9
+*** thread 0 sees value 10
+*** thread 3 sees value 11
+*** thread 2 sees value 12
+*** thread 1 sees value 13
+*** thread 4 sees value 14
+*** thread 1 sees value 15
+*** thread 3 sees value 16
+*** thread 2 sees value 17
+*** thread 0 sees value 18
+*** thread 4 sees value 19
+*** thread 0 sees value 20
+*** thread 3 sees value 21
+*** thread 2 sees value 22
+*** thread 1 sees value 23
+*** thread 4 sees value 24
+Thread 4 sees final value 25
+Thread 1 sees final value 25
+Thread 2 sees final value 25
+Thread 3 sees final value 25
+Thread 0 sees final value 25
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 1493, idle 93, system 1400, user 0
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...
+
+=================================================================
+
+Sample output from exercise 2(Locks) with a random seed of 42:
+
+*** thread 0 sees value 0
+*** thread 1 sees value 1
+*** thread 2 sees value 2
+*** thread 3 sees value 3
+*** thread 4 sees value 4
+*** thread 0 sees value 5
+*** thread 1 sees value 6
+*** thread 2 sees value 7
+*** thread 3 sees value 8
+*** thread 4 sees value 9
+*** thread 3 sees value 10
+*** thread 1 sees value 11
+*** thread 2 sees value 12
+*** thread 0 sees value 13
+*** thread 4 sees value 14
+*** thread 3 sees value 15
+*** thread 1 sees value 16
+*** thread 2 sees value 17
+*** thread 0 sees value 18
+*** thread 4 sees value 19
+*** thread 3 sees value 20
+*** thread 4 sees value 21
+*** thread 2 sees value 22
+*** thread 0 sees value 23
+*** thread 1 sees value 24
+Thread 1 sees final value 25
+Thread 0 sees final value 25
+Thread 2 sees final value 25
+Thread 4 sees final value 25
+Thread 3 sees final value 25
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 1458, idle 28, system 1430, user 0
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...
+
+=============================================================
+
+Sample output from elevator run 1 elevator, 21 people, 
+30 floors (no random seed):
+
+Elevator arrives at floor 1.
+Person 0 wants to go to floor 4 from floor 1.
+Person 0 got into the elevator at floor 1.
+Person 1 wants to go to floor 4 from floor 1.
+Person 1 got into the elevator at floor 1.
+Person 2 wants to go to floor 3 from floor 1.
+Person 2 got into the elevator at floor 1.
+Person 3 wants to go to floor 6 from floor 1.
+Person 3 got into the elevator at floor 1.
+Person 4 wants to go to floor 3 from floor 2.
+Person 5 wants to go to floor 9 from floor 1.
+Person 5 got into the elevator at floor 1.
+Person 6 wants to go to floor 4 from floor 3.
+Person 7 wants to go to floor 1 from floor 4.
+Person 8 wants to go to floor 5 from floor 10.
+Person 9 wants to go to floor 20 from floor 11.
+Person 10 wants to go to floor 7 from floor 4.
+Person 11 wants to go to floor 2 from floor 23.
+Person 12 wants to go to floor 14 from floor 13.
+Person 13 wants to go to floor 8 from floor 10.
+Person 14 wants to go to floor 5 from floor 10.
+Person 15 wants to go to floor 20 from floor 11.
+Person 16 wants to go to floor 7 from floor 4.
+Person 17 wants to go to floor 17 from floor 10.
+Person 18 wants to go to floor 12 from floor 4.
+Person 19 wants to go to floor 12 from floor 4.
+Person 20 wants to go to floor 1 from floor 30.
+Elevator arrives at floor 2.
+Elevator arrives at floor 3.
+Person 2 got out of the elevator at floor 3.
+Person 6 got into the elevator at floor 3.
+Elevator arrives at floor 4.
+Person 0 got out of the elevator at floor 4.
+Person 1 got out of the elevator at floor 4.
+Person 6 got out of the elevator at floor 4.
+Person 7 got into the elevator at floor 4.
+Person 10 got into the elevator at floor 4.
+Person 16 got into the elevator at floor 4.
+Elevator arrives at floor 5.
+Elevator arrives at floor 6.
+Person 3 got out of the elevator at floor 6.
+Elevator arrives at floor 7.
+Person 10 got out of the elevator at floor 7.
+Person 16 got out of the elevator at floor 7.
+Elevator arrives at floor 8.
+Elevator arrives at floor 9.
+Person 5 got out of the elevator at floor 9.
+Elevator arrives at floor 10.
+Person 8 got into the elevator at floor 10.
+Person 13 got into the elevator at floor 10.
+Person 14 got into the elevator at floor 10.
+Person 17 got into the elevator at floor 10.
+Elevator arrives at floor 11.
+Elevator arrives at floor 12.
+Elevator arrives at floor 13.
+Elevator arrives at floor 14.
+Elevator arrives at floor 15.
+Elevator arrives at floor 16.
+Elevator arrives at floor 17.
+Person 17 got out of the elevator at floor 17.
+Elevator arrives at floor 18.
+Elevator arrives at floor 19.
+Elevator arrives at floor 20.
+Elevator arrives at floor 21.
+Elevator arrives at floor 22.
+Elevator arrives at floor 23.
+Person 11 got into the elevator at floor 23.
+Elevator arrives at floor 24.
+Elevator arrives at floor 25.
+Elevator arrives at floor 26.
+Elevator arrives at floor 27.
+Elevator arrives at floor 28.
+Elevator arrives at floor 29.
+Elevator arrives at floor 30.
+Elevator arrives at floor 29.
+Elevator arrives at floor 28.
+Elevator arrives at floor 27.
+Elevator arrives at floor 26.
+Elevator arrives at floor 25.
+Elevator arrives at floor 24.
+Elevator arrives at floor 23.
+Elevator arrives at floor 22.
+Elevator arrives at floor 21.
+Elevator arrives at floor 20.
+Elevator arrives at floor 19.
+Elevator arrives at floor 18.
+Elevator arrives at floor 17.
+Elevator arrives at floor 16.
+Elevator arrives at floor 15.
+Elevator arrives at floor 14.
+Elevator arrives at floor 13.
+Elevator arrives at floor 12.
+Elevator arrives at floor 11.
+Elevator arrives at floor 10.
+Elevator arrives at floor 9.
+Elevator arrives at floor 8.
+Person 13 got out of the elevator at floor 8.
+Elevator arrives at floor 7.
+Elevator arrives at floor 6.
+Elevator arrives at floor 5.
+Person 8 got out of the elevator at floor 5.
+Person 14 got out of the elevator at floor 5.
+Elevator arrives at floor 4.
+Person 18 got into the elevator at floor 4.
+Person 19 got into the elevator at floor 4.
+Elevator arrives at floor 3.
+Elevator arrives at floor 2.
+Person 4 got into the elevator at floor 2.
+Person 11 got out of the elevator at floor 2.
+Elevator arrives at floor 1.
+Person 7 got out of the elevator at floor 1.
+Elevator arrives at floor 2.
+Elevator arrives at floor 3.
+Person 4 got out of the elevator at floor 3.
+Elevator arrives at floor 4.
+Elevator arrives at floor 5.
+Elevator arrives at floor 6.
+Elevator arrives at floor 7.
+Elevator arrives at floor 8.
+Elevator arrives at floor 9.
+Elevator arrives at floor 10.
+Elevator arrives at floor 11.
+Person 9 got into the elevator at floor 11.
+Person 15 got into the elevator at floor 11.
+Elevator arrives at floor 12.
+Person 18 got out of the elevator at floor 12.
+Person 19 got out of the elevator at floor 12.
+Elevator arrives at floor 13.
+Person 12 got into the elevator at floor 13.
+Elevator arrives at floor 14.
+Person 12 got out of the elevator at floor 14.
+Elevator arrives at floor 15.
+Elevator arrives at floor 16.
+Elevator arrives at floor 17.
+Elevator arrives at floor 18.
+Elevator arrives at floor 19.
+Elevator arrives at floor 20.
+Person 9 got out of the elevator at floor 20.
+Person 15 got out of the elevator at floor 20.
+Elevator arrives at floor 21.
+Elevator arrives at floor 22.
+Elevator arrives at floor 23.
+Elevator arrives at floor 24.
+Elevator arrives at floor 25.
+Elevator arrives at floor 26.
+Elevator arrives at floor 27.
+Elevator arrives at floor 28.
+Elevator arrives at floor 29.
+Elevator arrives at floor 30.
+Person 20 got into the elevator at floor 30.
+Elevator arrives at floor 29.
+Elevator arrives at floor 28.
+Elevator arrives at floor 27.
+Elevator arrives at floor 26.
+Elevator arrives at floor 25.
+Elevator arrives at floor 24.
+Elevator arrives at floor 23.
+Elevator arrives at floor 22.
+Elevator arrives at floor 21.
+Elevator arrives at floor 20.
+Elevator arrives at floor 19.
+Elevator arrives at floor 18.
+Elevator arrives at floor 17.
+Elevator arrives at floor 16.
+Elevator arrives at floor 15.
+Elevator arrives at floor 14.
+Elevator arrives at floor 13.
+Elevator arrives at floor 12.
+Elevator arrives at floor 11.
+Elevator arrives at floor 10.
+Elevator arrives at floor 9.
+Elevator arrives at floor 8.
+Elevator arrives at floor 7.
+Elevator arrives at floor 6.
+Elevator arrives at floor 5.
+Elevator arrives at floor 4.
+Elevator arrives at floor 3.
+Elevator arrives at floor 2.
+Elevator arrives at floor 1.
+Person 20 got out of the elevator at floor 1.
+Elevator arrives at floor 2.
+Elevator arrives at floor 3.
+Elevator arrives at floor 4.
+.
+.
+.

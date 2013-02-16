@@ -8,7 +8,7 @@ sys.argv.pop(0)
 #edit make file and put it in a buffer
 for line in f:
     if line[0:9] == "DEFINES =":
-        s += "DEFINES = -DTHREADS -DCHANGED"
+        s += "DEFINES = -DTHREADS"
         for i in sys.argv:
             s+= " " + i
         s += "\n"
@@ -22,5 +22,5 @@ f.close()
 f = open("Makefile", "w")
 f.write(s)
 f.close()
-os.system("touch *")
+os.system("touch *.cc *.h")
 os.system("make")

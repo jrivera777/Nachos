@@ -15,7 +15,7 @@
 int
 main()
 {
-    Yield();
+    // Yield();
     Halt();
     /* not reached */
 }

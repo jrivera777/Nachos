@@ -1,4 +1,4 @@
 *.o
 *.coff
-nachosdir/code/*/nachos
-nachosdir/gnu-decstation-ultrix/
+code/*/nachos
+gnu-decstation-ultrix/

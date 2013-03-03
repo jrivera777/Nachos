@@ -25,6 +25,20 @@
 #include "system.h"
 #include "syscall.h"
 
+
+//Move PC register to next instruction
+//Update PrevPC and NextPC registers appropriately
+void
+UpdatePCRegs()
+{
+    int pc = machine->ReadRegister(PCReg);
+
+    machine->WriteRegister(PrevPCReg, pc);
+    machine->WriteRegister(PCReg, pc + 4);
+    machine->WriteRegister(NextPCReg, pc + 8);  
+}
+
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -79,4 +93,5 @@ ExceptionHandler(ExceptionType which)
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
     }
+    UpdatePCRegs();
 }

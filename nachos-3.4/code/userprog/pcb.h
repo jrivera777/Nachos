@@ -7,10 +7,13 @@
 class PCB
 {
  public:
+    PCB();
+    ~PCB();
     int getPID();
     void clearPID();
  private:
     int pid;
     int p_pid;
     Thread* curr;
-}#endif
+}
+#endif

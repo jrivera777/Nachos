@@ -9,8 +9,8 @@ class PCB
  public:
     PCB();
     ~PCB();
-    int getPID();
-    void clearPID();
+    int getPID() {return pid;};
+    void clearPID() {return p_pid};;
  private:
     int pid;
     int p_pid;

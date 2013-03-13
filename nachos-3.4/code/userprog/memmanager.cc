@@ -43,7 +43,7 @@ MemManager::ClearPage(int which)
     return true;
 }
 int
-MemMananager:GetFreePages()
+MemManager:GetFreePages()
 {
     int count = -1;
 

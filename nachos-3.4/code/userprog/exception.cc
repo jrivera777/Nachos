@@ -24,6 +24,8 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "pcbmanager.h"
+#include "pcb.h"
 
 //Move PC register to next instruction
 //Update PrevPC and NextPC registers appropriately
@@ -37,6 +39,11 @@ UpdatePCRegs()
     machine->WriteRegister(NextPCReg, pc + 8);  
 }
 
+void
+DummyFunction(int i)
+{
+    currentThread->space->RestoreState();    
+}
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -110,8 +117,46 @@ ExceptionHandler(ExceptionType which)
 	    }
 	    case SC_Fork:
 	    {
-		DEBUG('a', "Fork, initiated by user program.\n");		
+		DEBUG('a', "Fork, initiated by user program.\n");
+		printf("%s\n", currentThread->getName());
+		if(!currentThread->space->pcb)
+		    printf("NO SPACE\n");
+		printf("System Call: %d invoked Fork\n", currentThread->space->pcb->GetPID());
+		currentThread->space->SaveState(); //save old registers
+		DEBUG('a', "Saved address space.\n");
+		PCBManager* manager = PCBManager::GetInstance();
+		DEBUG('a', "About to fork duplicate address space\n");
+		AddrSpace* fSpace = currentThread->space->Fork(); //make duplicate address space
+
+		DEBUG('a', "Duplicated Address space %d.\n", fSpace->GetNumPages());
+		Thread* fThread = new Thread("forked thread");
+		DEBUG('a', "Created new Thread.\n");
 		
+		//copy old register values into new thread;
+		fThread->SaveUserState();
+		DEBUG('a', "Copied registers into new thread.\n");
+		
+		int pc =  machine->ReadRegister(4);
+		fThread->setUserRegister(PCReg, pc); //set PC to whatever is in r4
+		int pid = manager->GetPID(); //find next available pid
+		DEBUG('a', "New thread got pid=%d.\n", pid);
+		ASSERT(pid >= 0);
+
+		PCB* pcb = new PCB(fThread, pid, 
+				   currentThread->space->pcb->GetPID());
+		DEBUG('a', "New thread PCB = {%s,%d,%d}.\n", currentThread->getName(), pcb->GetPID(), pcb->GetParentPID());
+		//fSpace->pcb = pcb;
+
+		manager->pcbs->Append((void*)pcb);
+
+		printf("Process [%d] Fork: start at address [%x] with [%d] pages memory\n", 
+			       pid, pc, fSpace->GetNumPages());
+		DEBUG('a', "New thread PCB = {%s,%d,%d}.\n", currentThread->getName(), pcb->GetPID(), pcb->GetParentPID());
+		fThread->space = fSpace;
+		//fThread->Fork(DummyFunction, pid);
+		//currentThread->space->RestoreState();
+		
+		machine->WriteRegister(2, pid);
 		break;
 	    }
 	    case SC_Kill:
@@ -138,3 +183,4 @@ ExceptionHandler(ExceptionType which)
     }
     UpdatePCRegs();
 }
+

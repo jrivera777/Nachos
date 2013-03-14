@@ -1,12 +1,13 @@
 #include "memmanager.h"
+#include "machine.h"
 
 MemManager* MemManager::manager = NULL;
 
 MemManager*
-MemManager::GetInstance(int numPages)
+MemManager::GetInstance()
 {
     if(!manager)
-	manager = new MemManager(numPages);
+	manager = new MemManager(NumPhysPages);
     
     return manager;
 }

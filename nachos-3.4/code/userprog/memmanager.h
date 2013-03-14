@@ -9,7 +9,7 @@ class Lock;
 class MemManager
 {
  public:
-    static MemManager* GetInstance(int numPages);
+    static MemManager* GetInstance();
     ~MemManager();
     int GetPage();
     bool ClearPage(int which);

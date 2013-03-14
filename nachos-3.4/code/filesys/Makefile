@@ -331,6 +331,40 @@ memmanager.o: ../userprog/memmanager.cc ../userprog/memmanager.h \
   ../threads/copyright.h ../filesys/filesys.h ../threads/copyright.h \
   ../filesys/openfile.h ../threads/utility.h ../threads/list.h \
   ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h
+pcb.o: ../userprog/pcb.cc ../userprog/pcb.h ../threads/thread.h \
+  ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
+  ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
+  /usr/include/features.h /usr/include/sys/cdefs.h \
+  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+  /usr/include/gnu/stubs-32.h \
+  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
+  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/bits/sys_errlist.h /usr/include/string.h \
+  /usr/include/xlocale.h ../machine/machine.h ../threads/utility.h \
+  ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
+  ../threads/copyright.h ../filesys/filesys.h ../threads/copyright.h \
+  ../filesys/openfile.h ../threads/utility.h ../userprog/memmanager.h \
+  ../threads/synch.h ../threads/thread.h ../threads/list.h \
+  ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h
+pcbmanager.o: ../userprog/pcbmanager.cc ../userprog/pcbmanager.h \
+  ../userprog/bitmap.h ../threads/copyright.h ../threads/utility.h \
+  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
+  ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
+  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
+  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
+  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
+  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/bits/sys_errlist.h /usr/include/string.h \
+  /usr/include/xlocale.h ../filesys/openfile.h ../threads/copyright.h \
+  ../threads/utility.h ../threads/synchlist.h ../threads/list.h \
+  ../threads/utility.h ../threads/synch.h ../threads/thread.h \
+  ../machine/machine.h ../threads/utility.h ../machine/translate.h \
+  ../machine/disk.h ../userprog/addrspace.h ../filesys/filesys.h \
+  ../filesys/openfile.h ../userprog/memmanager.h ../threads/synch.h
 exception.o: ../userprog/exception.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
@@ -350,7 +384,9 @@ exception.o: ../userprog/exception.cc ../threads/copyright.h \
   ../threads/utility.h ../filesys/openfile.h ../threads/scheduler.h \
   ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
   ../machine/timer.h ../filesys/filesys.h ../filesys/synchdisk.h \
-  ../machine/disk.h ../threads/synch.h ../userprog/syscall.h
+  ../machine/disk.h ../threads/synch.h ../userprog/syscall.h \
+  ../userprog/pcbmanager.h ../threads/synchlist.h ../threads/synch.h \
+  ../userprog/pcb.h ../threads/thread.h
 progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \

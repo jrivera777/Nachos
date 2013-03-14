@@ -18,7 +18,11 @@
 #include "copyright.h"
 #include "system.h"
 #include "addrspace.h"
+#include "pcbmanager.h"
 #include "noff.h"
+
+class PCB;
+
 #ifdef HOST_SPARC
 #include <strings.h>
 #endif
@@ -60,7 +64,8 @@ SwapHeader (NoffHeader *noffH)
 //	"executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(OpenFile *executable)
+void
+AddrSpace::init(OpenFile* executable, int parentID)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -77,19 +82,25 @@ AddrSpace::AddrSpace(OpenFile *executable)
 						// to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
-    manager = MemManager::GetInstance(numPages);
+    manager = MemManager::GetInstance();
     ASSERT(numPages <= manager->GetFreePages());	// check we're not trying
 						// to run anything too big --
 						// at least until we have
 						// virtual memory
 
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
-					numPages, size);
+					 manager->GetFreePages(), size);
+
+    PCBManager* pcbman = PCBManager::GetInstance();
+
+    pcb = new PCB(currentThread, pcbman->GetPID(), parentID);
+    DEBUG('a', "PCB(%s, %d, %d)\n", currentThread->getName(), pcb->GetPID(), pcb->GetParentPID());
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 	pageTable[i].physicalPage = manager->GetPage();
+	DEBUG('a', "VA=%d - PA=%d\n", pageTable[i].virtualPage, pageTable[i].physicalPage);
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
@@ -115,7 +126,17 @@ AddrSpace::AddrSpace(OpenFile *executable)
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
+    DEBUG('a', "Space has %d pages at constructor exit.\n", numPages);
+}
 
+AddrSpace::AddrSpace(){}
+AddrSpace::AddrSpace(OpenFile *executable)
+{
+    init(executable, -1);
+}
+AddrSpace::AddrSpace(OpenFile *executable, int parentID)
+{
+    init(executable, parentID);
 }
 
 //----------------------------------------------------------------------
@@ -175,7 +196,11 @@ AddrSpace::InitRegisters()
 //----------------------------------------------------------------------
 
 void AddrSpace::SaveState() 
-{}
+{
+    pageTable = machine->pageTable;
+    //  numPages = machine->pageTableSize;
+    currentThread->SaveUserState();
+}
 
 //----------------------------------------------------------------------
 // AddrSpace::RestoreState
@@ -189,4 +214,32 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+    //currentThread->RestoreUserState();
+}
+
+AddrSpace*
+AddrSpace::Fork()
+{
+    AddrSpace* forkedSpace = new AddrSpace();
+    forkedSpace->numPages = numPages;
+    forkedSpace->manager = manager;
+
+    //set up page table or copy it?
+    forkedSpace->pageTable = new TranslationEntry[numPages];
+    for (int i = 0; i < numPages; i++) 
+    {
+	forkedSpace->pageTable[i].virtualPage = i;
+	forkedSpace->pageTable[i].physicalPage = pageTable[i].physicalPage;
+	forkedSpace->pageTable[i].valid = pageTable[i].valid;
+	forkedSpace->pageTable[i].use = pageTable[i].use;
+	forkedSpace->pageTable[i].dirty = pageTable[i].dirty;
+	forkedSpace->pageTable[i].readOnly = pageTable[i].readOnly;
+    }
+
+    return forkedSpace;
+}
+
+int AddrSpace::ReadFile(int virtAddr, OpenFile* file, int size, int fileAddr)
+{
+    return 0;
 }

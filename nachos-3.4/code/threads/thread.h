@@ -103,6 +103,7 @@ class Thread {
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
 
+
   private:
     // some of the private data for this class is listed above
     
@@ -126,7 +127,7 @@ class Thread {
   public:
     void SaveUserState();		// save user-level register state
     void RestoreUserState();		// restore user-level register state
-
+    void setUserRegister(int reg, int val) {userRegisters[reg] = val;};
     AddrSpace *space;			// User code this thread is running.
 #endif
 };

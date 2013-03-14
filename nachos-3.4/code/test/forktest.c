@@ -12,9 +12,22 @@
 
 #include "syscall.h"
 
+int total;
+void printA()
+{
+    OpenFileId output = ConsoleOutput;
+    int i;
+    char test[5];
+    test[0] = 'a';
+    *test++;
+    Write(test, 1, output);
+}
+
 int
 main()
-{
+{   
+    Fork(printA);
+    printA();
     Halt();
     /* not reached */
 }

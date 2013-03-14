@@ -25,7 +25,6 @@
 #include "system.h"
 #include "syscall.h"
 
-
 //Move PC register to next instruction
 //Update PrevPC and NextPC registers appropriately
 void
@@ -66,28 +65,72 @@ void
 ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
-    
-    if ((which == SyscallException) && (type == SC_Halt)) {
-	DEBUG('a', "Shutdown, initiated by user program.\n");
-   	interrupt->Halt();
-    } 
-    else if((which == SyscallException) && (type == SC_Exit)) {
-	DEBUG('a', "Exit, initiated by user program.\n");
-    }
-    else if((which == SyscallException) && (type == SC_Exec)) {
-	DEBUG('a', "Exec, initiated by user program.\n");
-    }
-    else if((which == SyscallException) && (type == SC_Join)) {
-	DEBUG('a', "Join, initiated by user program.\n");
-    }
-    else if((which == SyscallException) && (type == SC_Fork)) {
-	DEBUG('a', "Fork, initiated by user program.\n");
-    }
-    else if((which == SyscallException) && (type == SC_Kill)) {
-	DEBUG('a', "Kill, initiated by user program.\n");
-    }
-    else if((which == SyscallException) && (type == SC_Yield)) {
-	DEBUG('a', "Yeild, initiated by user program.\n");
+    if(which == SyscallException)
+    {
+	switch(type)
+	{
+	    case SC_Halt:
+	    {
+		DEBUG('a', "Shutdown, initiated by user program.\n");
+
+		interrupt->Halt();
+
+		break;
+	    }
+	    case SC_Exit:
+	    {
+		int status = machine->ReadRegister(4);
+
+		DEBUG('a', "Exit[%d], initiated by user program.\n", status);
+
+		break;
+	    }	    
+	    case SC_Exec:
+	    {
+		char* path = (char*)machine->ReadRegister(4); //get executable path
+		int pid = -1;
+		
+		DEBUG('a', "Exec[%s], initiated by user program.\n", path);
+		
+		if(pid >= 0)
+		    machine->WriteRegister(2, 1);
+		    
+		break;
+	    }
+	    case SC_Join:
+	    {
+		int pid = machine->ReadRegister(4); //get process to join
+		int status = -1;
+
+		DEBUG('a', "Join[%d], initiated by user program.\n", pid);
+
+		machine->WriteRegister(2, status);
+
+		break;
+	    }
+	    case SC_Fork:
+	    {
+		DEBUG('a', "Fork, initiated by user program.\n");		
+		
+		break;
+	    }
+	    case SC_Kill:
+	    {		
+		int pid = machine->ReadRegister(2); //get process to kill
+
+		DEBUG('a', "Kill[%d], initiated by user program.\n", pid);
+
+		break;
+	    }
+	    case SC_Yield:
+	    {
+		DEBUG('a', "Yeild, initiated by user program.\n");
+		
+		currentThread->Yield();
+
+		break;
+	    }
+	}
     }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);

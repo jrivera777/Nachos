@@ -4,7 +4,6 @@
 #include "thread.h"
 #include "bitmap.h"
 
-
 class PCB
 {
  public:

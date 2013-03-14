@@ -1,28 +1,40 @@
 #include "memmanager.h"
 
-//Initialize pages, default none used.
-MemManager::MemManager()
+MemManager* MemManager::manager = NULL;
+
+MemManager*
+MemManager::GetInstance(int numPages)
 {
-    pages = new Bitmap(TOTAL_PAGES);
+    if(!manager)
+	manager = new MemManager(numPages);
+    
+    return manager;
+}
+
+MemManager::MemManager(int numPages)
+{
+    pages = new BitMap(numPages);
     mmLock = new Lock("mmLock");
     usedPages = 0;
+    totalPages =  numPages;
 }
 
 MemManager::~MemManager()
 {
     delete pages;
     delete mmLock;
+    delete manager;
 }
 
 int
 MemManager::GetPage()
 {
-    if(usedPages >= TOTAL_PAGES)
+    if(usedPages >= totalPages)
 	return -1;
     
     mmLock->Acquire();
     int pageNumber = pages->Find(); //locate next free page
-    if(page >= 0)
+    if(pageNumber >= 0)
 	usedPages++; //free page discovered
     mmLock->Release();
 	   
@@ -42,8 +54,9 @@ MemManager::ClearPage(int which)
 
     return true;
 }
+
 int
-MemManager:GetFreePages()
+MemManager::GetFreePages()
 {
     int count = -1;
 

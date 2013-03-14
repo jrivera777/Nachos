@@ -14,6 +14,8 @@
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // synch.h -- synchronization primitives.  
 
+class Thread;
+
 #ifndef SYNCH_H
 #define SYNCH_H
 

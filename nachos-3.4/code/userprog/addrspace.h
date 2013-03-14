@@ -13,9 +13,11 @@
 #ifndef ADDRSPACE_H
 #define ADDRSPACE_H
 
+class MemManager;
+
 #include "copyright.h"
 #include "filesys.h"
-
+#include "memmanager.h"
 #define UserStackSize		1024 	// increase this as necessary!
 
 class AddrSpace {
@@ -26,7 +28,7 @@ class AddrSpace {
     ~AddrSpace();			// De-allocate an address space
 
     void InitRegisters();		// Initialize user-level CPU registers,
-					// before jumping to user code
+    int Translate(int i);               // before jumping to user code
 
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
@@ -35,7 +37,7 @@ class AddrSpace {
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
-					// address space
+    MemManager* manager;				// address space
 };
 
 #endif // ADDRSPACE_H

@@ -1,23 +1,26 @@
-#idndef MEMMANAGER_H
+#ifndef MEMMANAGER_H
 #define MEMMANAGER_H
 
-#include "bitmap.h"
-#include "synch.h"
+class Lock;
 
-#define TOTAL_PAGES 32
+#include "synch.h"
+#include "bitmap.h"
 
 class MemManager
 {
  public:
-    MemManager();
+    static MemManager* GetInstance(int numPages);
     ~MemManager();
     int GetPage();
     bool ClearPage(int which);
     int GetFreePages();
  private:
-    Bitmap* pages;
+    MemManager(int numPages);
+    BitMap* pages;
     int usedPages;
     Lock* mmLock;
-}
+    int totalPages;
+    static MemManager* manager;
+};
 
 #endif

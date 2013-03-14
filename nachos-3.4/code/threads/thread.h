@@ -37,6 +37,7 @@
 #ifndef THREAD_H
 #define THREAD_H
 
+class AddrSpace;
 #include "copyright.h"
 #include "utility.h"
 

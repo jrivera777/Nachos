@@ -98,6 +98,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent)
     PCBManager* pcbman = PCBManager::GetInstance();
 
     pcb = new PCB(currentThread, pcbman->GetPID(), parent);
+    pcbman->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //keep track of new pcb
     if(pcb->GetParent())
 	DEBUG('a', "PCB(%s, %d, %d)\n", currentThread->getName(), pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
     else
@@ -206,6 +207,7 @@ void AddrSpace::SaveState()
 {
     pageTable = machine->pageTable;
     numPages = machine->pageTableSize;
+    currentThread->SaveUserState();
 }
 
 //----------------------------------------------------------------------
@@ -220,6 +222,7 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+//    currentThread->RestoreUserState();
 }
 
 AddrSpace*

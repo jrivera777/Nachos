@@ -42,8 +42,7 @@ UpdatePCRegs()
 void
 DummyFunction(int i)
 {
-    DEBUG('a', "Running Dummy Function!!!\n");
-    currentThread->space->RestoreState();    
+    currentThread->RestoreUserState();    
     machine->Run();
 }
 
@@ -161,23 +160,30 @@ ExceptionHandler(ExceptionType which)
 		Thread* fThread = new Thread("forked thread");
 		
 		//copy old register values into new thread;
-		fThread->SaveUserState();
+		//fThread->SaveUserState();
+		for(int i = 0; i < NumTotalRegs; i++)
+		{
+		    fThread->SetUserRegister(i, currentThread->GetUserRegister(i));
+		}
 		
 		int pc =  machine->ReadRegister(4);
-		fThread->setUserRegister(PCReg, pc); //set PC to whatever is in r4
+		fThread->SetUserRegister(PCReg, pc); //set PC to whatever is in r4
 
 		int pid = manager->GetPID(); //find next available pid
 		ASSERT(pid >= 0);
 
 		PCB* pcb = new PCB(fThread, pid, 
 				   currentThread);
+	       
+		//add new thread pcb to children of current thread
+		currentThread->space->pcb->children->SortedInsert((void*)pcb, pcb->GetPID());
 
 		fSpace->pcb = pcb;
 		DEBUG('a', "New address space pcb = {%d,%d}\n", pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
 		manager->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //insert into list of pcbs, sorted by pid
 
 		printf("Process [%d] Fork: start at address [%x] with [%d] pages memory\n", 
-			       pid, pc, fSpace->GetNumPages());
+			       pid + 1, pc, fSpace->GetNumPages());
 		fThread->space = fSpace;
 
 		fThread->Fork(DummyFunction, pid);

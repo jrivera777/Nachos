@@ -6,6 +6,8 @@ PCB::PCB(Thread* t, int id, Thread* par)
     parent = par;
     thrd = t;
     children = new List();
+    pcbLock = new Lock("pcbLock");
+    pcbCond = new Condition("pcbCond");
 }
 
 bool
@@ -33,4 +35,10 @@ void
 PCB::OrphanChildren()
 {
     children->Mapcar(&OrphanChild);
+}
+
+void*
+PCB::GetChild(int pkey)
+{
+    return children->GetElement(pkey);
 }

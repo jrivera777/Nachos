@@ -16,6 +16,7 @@ PCBManager::PCBManager()
     usedPids = 0;
     pidLock = new Lock("pcbmLock");
     pids = new BitMap(MAX_PID);
+    pids->Mark(0); //don't ever use 0 as a process ID
     pcbs = new List();
 }
 

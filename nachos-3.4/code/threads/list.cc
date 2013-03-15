@@ -250,6 +250,19 @@ List::Contains(int key)
 }
 
 void*
+List::GetElement(int pkey)
+{
+    ListElement* ptr = NULL;
+    for(ptr = first; ptr != NULL; ptr = ptr->next)
+    {
+	if(ptr->key == pkey)
+	    return ptr->item;
+    }
+
+    return ptr;
+}
+
+void*
 List::Remove(int pkey)
 {
     void* removed = NULL;

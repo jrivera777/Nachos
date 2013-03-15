@@ -205,8 +205,8 @@ AddrSpace::InitRegisters()
 
 void AddrSpace::SaveState() 
 {
-    pageTable = machine->pageTable;
-    numPages = machine->pageTableSize;
+//    pageTable = machine->pageTable;
+    //  numPages = machine->pageTableSize;
     currentThread->SaveUserState();
 }
 

@@ -40,9 +40,10 @@ UpdatePCRegs()
 }
 
 void
-DummyFunction(int i)
+DummyFunction(int pc)
 {
-    currentThread->RestoreUserState();    
+    DEBUG('a', "Entered dummy function with PC=[%d]\n", pc);
+    currentThread->RestoreUserState();  
     machine->Run();
 }
 
@@ -87,11 +88,12 @@ ExceptionHandler(ExceptionType which)
 	    }
 	    case SC_Exit:
 	    {
-		int status = machine->ReadRegister(4);
+		int status = machine->ReadRegister(4); // retreive given exit status
 
 		DEBUG('a', "Exit[%d], initiated by user program.\n", status);
-		printf("System Call: [%d] invoked Exit\n", currentThread->space->pcb->GetPID() + 1);
-		
+
+		printf("System Call: [%d] invoked Exit\n", currentThread->space->pcb->GetPID());
+
 		PCB* currentPCB = currentThread->space->pcb;
 		if(!currentPCB->children->IsEmpty()) //If process has children, they must become zombies
 		    currentPCB->OrphanChildren();
@@ -117,7 +119,13 @@ ExceptionHandler(ExceptionType which)
 		manager->ClearPID(currentPCB->GetPID()); //free up pid
 
 		currentThread->space->FreePages(); // free up pages
-		printf("Process [%d] exited with status [%d]\n", currentPCB->GetPID() + 1, status);
+
+		Lock* pcbLock = currentPCB->pcbLock;
+		pcbLock->Acquire();
+		currentPCB->pcbCond->Broadcast(pcbLock); //wake up any threads waiting for finish
+		pcbLock->Release();
+
+		printf("Process [%d] exited with status [%d]\n", currentPCB->GetPID(), status);
 		currentThread->Finish();
 		break;
 	    }	    
@@ -140,7 +148,19 @@ ExceptionHandler(ExceptionType which)
 		int status = -1;
 
 		DEBUG('a', "Join[%d], initiated by user program.\n", pid);
+
 		printf("System Call: [%d] invoked Join\n", currentThread->space->pcb->GetPID());
+
+		PCB* child = (PCB*)currentThread->space->pcb->GetChild(pid);
+		Lock* pcbLock = child->pcbLock;
+		if(child != NULL)
+		{
+		    pcbLock->Acquire();
+		    child->pcbCond->Wait(pcbLock); //wait for child process to finish
+		    pcbLock->Release();
+
+		    status = child->GetExitStatus();
+		} 
 
 		machine->WriteRegister(2, status);
 
@@ -150,7 +170,7 @@ ExceptionHandler(ExceptionType which)
 	    {
 		DEBUG('a', "Fork, initiated by user program.\n");
 
-		printf("System Call: [%d] invoked Fork\n", currentThread->space->pcb->GetPID()+ 1);
+		printf("System Call: [%d] invoked Fork\n", currentThread->space->pcb->GetPID());
 
 		currentThread->space->SaveState(); //save old registers
 
@@ -158,36 +178,31 @@ ExceptionHandler(ExceptionType which)
 		AddrSpace* fSpace = currentThread->space->Fork(); //make duplicate address space
 
 		Thread* fThread = new Thread("forked thread");
-		
+
+		int pc =  machine->ReadRegister(4);		
 		//copy old register values into new thread;
-		//fThread->SaveUserState();
 		for(int i = 0; i < NumTotalRegs; i++)
 		{
 		    fThread->SetUserRegister(i, currentThread->GetUserRegister(i));
 		}
-		
-		int pc =  machine->ReadRegister(4);
 		fThread->SetUserRegister(PCReg, pc); //set PC to whatever is in r4
+		fThread->SetUserRegister(NextPCReg, pc+4);
 
 		int pid = manager->GetPID(); //find next available pid
 		ASSERT(pid >= 0);
-
-		PCB* pcb = new PCB(fThread, pid, 
-				   currentThread);
+		PCB* pcb = new PCB(fThread, pid, currentThread);
 	       
 		//add new thread pcb to children of current thread
 		currentThread->space->pcb->children->SortedInsert((void*)pcb, pcb->GetPID());
 
 		fSpace->pcb = pcb;
-		DEBUG('a', "New address space pcb = {%d,%d}\n", pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
 		manager->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //insert into list of pcbs, sorted by pid
 
-		printf("Process [%d] Fork: start at address [%x] with [%d] pages memory\n", 
-			       pid + 1, pc, fSpace->GetNumPages());
+		printf("Process [%d] Fork: start at address [0x%x] with [%d] pages memory\n", 
+			       currentThread->space->pcb->GetPID(), pc, fSpace->GetNumPages());
 		fThread->space = fSpace;
 
-		fThread->Fork(DummyFunction, pid);
-		currentThread->space->RestoreState();
+		fThread->Fork(DummyFunction, pc);
 		
 		machine->WriteRegister(2, pid);
 		break;
@@ -210,10 +225,12 @@ ExceptionHandler(ExceptionType which)
 		else
 		    DEBUG('a', "CurrentThread pcb = {%d,%d}\n", currentThread->space->pcb->GetPID(), "NULL");
 
-		printf("System Call: [%d] invoked Yield\n", currentThread->space->pcb->GetPID() + 1);		
+		printf("System Call: [%d] invoked Yield\n", currentThread->space->pcb->GetPID());		
 
+//		currentThread->space->SaveState();
 		currentThread->Yield();
-
+//		currentThread->RestoreUserState();
+		
 		break;
 	    }
 	}

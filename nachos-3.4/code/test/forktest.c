@@ -27,22 +27,20 @@ main()
     int i = 0;
     
     total++;
-
-    Fork(sum);
-    Yield();
+    
+    Fork(sum); 
+    Yield(); 
+    
+    total++; 
+    
+    Fork(sum); 
+    Yield(); 
     
     total++;
     
-    Fork(sum);
-    Yield();
+    Fork(sum); 
+    Yield(); 
     
-    total++;
-    
-    Fork(sum);
-    Yield();
-
-    total++;
+    total++; 
     Exit(total);
-
-    /* not reached */
 }

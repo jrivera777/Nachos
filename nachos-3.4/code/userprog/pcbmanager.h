@@ -1,12 +1,11 @@
 #ifndef PCBMANAGER_H
 #define PCBMANAGER_H
 
-class Lock;
-class SynchList;
+#include "synch.h"
 #include "bitmap.h"
-#include "synchlist.h"
+#include "list.h"
 
-#define MAX_PID 256
+#define MAX_PID 512
 
 class PCBManager
 {
@@ -16,7 +15,8 @@ public:
     int GetPID();
     bool ClearPID(int which);
     int GetFreePids();
-    SynchList* pcbs;
+    void* RemovePCB(int pkey);
+    List* pcbs;
 private:
     PCBManager();
     int usedPids;

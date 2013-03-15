@@ -25,30 +25,32 @@ class PCB;
 class AddrSpace {
   public:
     AddrSpace(OpenFile *executable);
-    AddrSpace(OpenFile *executable, int parentID);	// Create an address space,
-					// initializing it with the program
-					// stored in the file "executable"
-    ~AddrSpace();			// De-allocate an address space
-
+    AddrSpace(OpenFile *executable, Thread* parent);	// Create an address space,
+    ~AddrSpace();					// initializing it with the program
+                                                        // stored in the file "executable"
+    			
+    int GetNumPages() {return numPages;};
     void InitRegisters();		// Initialize user-level CPU registers,
     int Translate(int i);               // before jumping to user code
 
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
     AddrSpace* Fork();                  // Create duplicate address space
+    void FreePages();                   //Free allocated physical pages
     int ReadFile(int virtAddr, 
 		 OpenFile* file,
 		 int size,
 		 int fileAddr);
     PCB* pcb;
-    int GetNumPages() {return numPages;};
+    int codeSize;
+    int initDataSize;
+    int uninitDataSize;
 private:
-    AddrSpace();                        //constructor for Fork Operation
-    void init(OpenFile* executable, int parentID);
-    TranslationEntry *pageTable;	// Assume linear page table translation
-					// for now!
-    unsigned int numPages;		// Number of pages in the virtual 
-    MemManager* manager;				// address space
+    AddrSpace();   //empty constructor for Fork Operation
+    void init(OpenFile* executable, Thread* parent); //moved noff data reading and page table building here
+    TranslationEntry *pageTable;
+    unsigned int numPages;		                 
+    MemManager* manager;  //Memory Manager reference
 };
 
 #endif // ADDRSPACE_H

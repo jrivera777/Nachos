@@ -65,7 +65,7 @@ SwapHeader (NoffHeader *noffH)
 //----------------------------------------------------------------------
 
 void
-AddrSpace::init(OpenFile* executable, int parentID)
+AddrSpace::init(OpenFile* executable, Thread* parent)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -80,6 +80,10 @@ AddrSpace::init(OpenFile* executable, int parentID)
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
 			+ UserStackSize;	// we need to increase the size
 						// to leave room for the stack
+    codeSize = noffH.code.size;
+    initDataSize = noffH.initData.size;
+    uninitDataSize = noffH.uninitData.size;
+
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
     manager = MemManager::GetInstance();
@@ -93,14 +97,16 @@ AddrSpace::init(OpenFile* executable, int parentID)
 
     PCBManager* pcbman = PCBManager::GetInstance();
 
-    pcb = new PCB(currentThread, pcbman->GetPID(), parentID);
-    DEBUG('a', "PCB(%s, %d, %d)\n", currentThread->getName(), pcb->GetPID(), pcb->GetParentPID());
+    pcb = new PCB(currentThread, pcbman->GetPID(), parent);
+    if(pcb->GetParent())
+	DEBUG('a', "PCB(%s, %d, %d)\n", currentThread->getName(), pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
+    else
+	DEBUG('a', "PCB(%s, %d, %d)\n", currentThread->getName(), pcb->GetPID(), "NULL");
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 	pageTable[i].physicalPage = manager->GetPage();
-	DEBUG('a', "VA=%d - PA=%d\n", pageTable[i].virtualPage, pageTable[i].physicalPage);
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
@@ -126,17 +132,18 @@ AddrSpace::init(OpenFile* executable, int parentID)
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
-    DEBUG('a', "Space has %d pages at constructor exit.\n", numPages);
+    printf("Loaded Program: [%d] code |  [%d] data | [%d] bss\n", codeSize, 
+	   initDataSize, uninitDataSize);
 }
 
 AddrSpace::AddrSpace(){}
 AddrSpace::AddrSpace(OpenFile *executable)
 {
-    init(executable, -1);
+    init(executable, NULL);
 }
-AddrSpace::AddrSpace(OpenFile *executable, int parentID)
+AddrSpace::AddrSpace(OpenFile *executable, Thread* parent)
 {
-    init(executable, parentID);
+    init(executable, parent);
 }
 
 //----------------------------------------------------------------------
@@ -198,8 +205,7 @@ AddrSpace::InitRegisters()
 void AddrSpace::SaveState() 
 {
     pageTable = machine->pageTable;
-    //  numPages = machine->pageTableSize;
-    currentThread->SaveUserState();
+    numPages = machine->pageTableSize;
 }
 
 //----------------------------------------------------------------------
@@ -214,7 +220,6 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
-    //currentThread->RestoreUserState();
 }
 
 AddrSpace*
@@ -223,7 +228,9 @@ AddrSpace::Fork()
     AddrSpace* forkedSpace = new AddrSpace();
     forkedSpace->numPages = numPages;
     forkedSpace->manager = manager;
-
+    forkedSpace->codeSize = codeSize;
+    forkedSpace->initDataSize = initDataSize;
+    forkedSpace->uninitDataSize = uninitDataSize;
     //set up page table or copy it?
     forkedSpace->pageTable = new TranslationEntry[numPages];
     for (int i = 0; i < numPages; i++) 
@@ -239,7 +246,15 @@ AddrSpace::Fork()
     return forkedSpace;
 }
 
-int AddrSpace::ReadFile(int virtAddr, OpenFile* file, int size, int fileAddr)
+int 
+AddrSpace::ReadFile(int virtAddr, OpenFile* file, int size, int fileAddr)
 {
     return 0;
+}
+
+void
+AddrSpace::FreePages()
+{
+    for(int i = 0; i < numPages; i++)
+	manager->ClearPage(pageTable[i].physicalPage);
 }

@@ -236,3 +236,39 @@ List::SortedRemove(int *keyPtr)
     return thing;
 }
 
+bool
+List::Contains(int key)
+{
+    ListElement* ptr;
+    for(ptr = first; ptr != NULL; ptr = ptr->next)
+    {
+	if(ptr->key == key)
+	    return true;
+    }
+
+    return false;
+}
+
+void*
+List::Remove(int pkey)
+{
+    void* removed = NULL;
+    ListElement* trcr = NULL;
+    ListElement* ptr;
+    for(ptr = first; ptr != NULL; ptr = ptr->next)
+    {
+	if(ptr->key == pkey)
+	{
+	    removed = ptr->item;
+	    if(trcr == NULL)
+		first = ptr->next;
+	    else
+		trcr->next = ptr->next;
+	    break;
+	}
+    }
+
+    return removed;
+}
+
+

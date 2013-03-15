@@ -12,22 +12,37 @@
 
 #include "syscall.h"
 
-int total;
-void printA()
+int total = 0;
+void sum()
 {
-    OpenFileId output = ConsoleOutput;
     int i;
-    char test[5];
-    test[0] = 'a';
-    *test++;
-    Write(test, 1, output);
+    for(i = 0; i < 100; i++)
+	total++;
+    Exit(i);
 }
 
 int
 main()
 {   
-    Fork(printA);
-    printA();
-    Halt();
+    int i = 0;
+    
+    total++;
+
+    Fork(sum);
+    Yield();
+    
+    total++;
+    
+    Fork(sum);
+    Yield();
+    
+    total++;
+    
+    Fork(sum);
+    Yield();
+
+    total++;
+    Exit(total);
+
     /* not reached */
 }

@@ -3,19 +3,28 @@
 
 #include "thread.h"
 #include "bitmap.h"
+#include "list.h"
 
 class Thread;
 
 class PCB
 {
  public:
-    PCB(Thread* t, int id, int parent);
+    PCB(Thread* t, int id, Thread* par);
     ~PCB();
     int GetPID() {return pid;};
-    int GetParentPID() {return p_pid;};
+    Thread* GetParent() {return parent;};
+    void SetParent(Thread* val) { parent = val;};
+    List* children;
+    bool isChild(int pkey);
+    void* RemoveChild(int pkey);
+    void OrphanChildren();
+    int GetExitStatus(){return exitStatus;};
+    void SetExitStatus(int val){exitStatus = val;};
  private:
     int pid;
-    int p_pid;
+    int exitStatus;
     Thread* thrd;
+    Thread* parent;
 };
 #endif

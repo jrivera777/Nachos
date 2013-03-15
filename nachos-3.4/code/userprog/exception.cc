@@ -42,7 +42,9 @@ UpdatePCRegs()
 void
 DummyFunction(int i)
 {
+    DEBUG('a', "Running Dummy Function!!!\n");
     currentThread->space->RestoreState();    
+    machine->Run();
 }
 
 //----------------------------------------------------------------------
@@ -79,7 +81,7 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Halt:
 	    {
 		DEBUG('a', "Shutdown, initiated by user program.\n");
-
+		printf("System Call: [%d] invoked Halt\n", currentThread->space->pcb->GetPID() + 1);
 		interrupt->Halt();
 
 		break;
@@ -89,7 +91,35 @@ ExceptionHandler(ExceptionType which)
 		int status = machine->ReadRegister(4);
 
 		DEBUG('a', "Exit[%d], initiated by user program.\n", status);
+		printf("System Call: [%d] invoked Exit\n", currentThread->space->pcb->GetPID() + 1);
+		
+		PCB* currentPCB = currentThread->space->pcb;
+		if(!currentPCB->children->IsEmpty()) //If process has children, they must become zombies
+		    currentPCB->OrphanChildren();
 
+		DEBUG('a', "Orphaned children\n");
+
+		Thread* parent = currentPCB->GetParent();
+		if(parent != NULL) //If process has parent,it  must be removed from the parent's list of children
+		{
+		    DEBUG('a', "Attempt to remove self[%d]\n", currentPCB->GetPID());
+
+		    parent->space->pcb->RemoveChild(currentPCB->GetPID());
+
+		    DEBUG('a', "Removed self from parent\n");
+
+		    currentPCB->SetExitStatus(currentPCB->GetParent()->space->pcb->GetPID());  //exit status is parent's pid
+		    DEBUG('a', "Set exit status\n");
+		}
+		
+
+		PCBManager* manager = PCBManager::GetInstance();
+		manager->RemovePCB(currentPCB->GetPID()); //remove PCB from list of PCBs
+		manager->ClearPID(currentPCB->GetPID()); //free up pid
+
+		currentThread->space->FreePages(); // free up pages
+		printf("Process [%d] exited with status [%d]\n", currentPCB->GetPID() + 1, status);
+		currentThread->Finish();
 		break;
 	    }	    
 	    case SC_Exec:
@@ -98,6 +128,7 @@ ExceptionHandler(ExceptionType which)
 		int pid = -1;
 		
 		DEBUG('a', "Exec[%s], initiated by user program.\n", path);
+		printf("System Call: [%d] invoked Exec\n", currentThread->space->pcb->GetPID() + 1);
 		
 		if(pid >= 0)
 		    machine->WriteRegister(2, 1);
@@ -110,6 +141,7 @@ ExceptionHandler(ExceptionType which)
 		int status = -1;
 
 		DEBUG('a', "Join[%d], initiated by user program.\n", pid);
+		printf("System Call: [%d] invoked Join\n", currentThread->space->pcb->GetPID());
 
 		machine->WriteRegister(2, status);
 
@@ -118,43 +150,38 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Fork:
 	    {
 		DEBUG('a', "Fork, initiated by user program.\n");
-		printf("%s\n", currentThread->getName());
-		if(!currentThread->space->pcb)
-		    printf("NO SPACE\n");
-		printf("System Call: %d invoked Fork\n", currentThread->space->pcb->GetPID());
+
+		printf("System Call: [%d] invoked Fork\n", currentThread->space->pcb->GetPID()+ 1);
+
 		currentThread->space->SaveState(); //save old registers
-		DEBUG('a', "Saved address space.\n");
+
 		PCBManager* manager = PCBManager::GetInstance();
-		DEBUG('a', "About to fork duplicate address space\n");
 		AddrSpace* fSpace = currentThread->space->Fork(); //make duplicate address space
 
-		DEBUG('a', "Duplicated Address space %d.\n", fSpace->GetNumPages());
 		Thread* fThread = new Thread("forked thread");
-		DEBUG('a', "Created new Thread.\n");
 		
 		//copy old register values into new thread;
 		fThread->SaveUserState();
-		DEBUG('a', "Copied registers into new thread.\n");
 		
 		int pc =  machine->ReadRegister(4);
 		fThread->setUserRegister(PCReg, pc); //set PC to whatever is in r4
+
 		int pid = manager->GetPID(); //find next available pid
-		DEBUG('a', "New thread got pid=%d.\n", pid);
 		ASSERT(pid >= 0);
 
 		PCB* pcb = new PCB(fThread, pid, 
-				   currentThread->space->pcb->GetPID());
-		DEBUG('a', "New thread PCB = {%s,%d,%d}.\n", currentThread->getName(), pcb->GetPID(), pcb->GetParentPID());
-		//fSpace->pcb = pcb;
+				   currentThread);
 
-		manager->pcbs->Append((void*)pcb);
+		fSpace->pcb = pcb;
+		DEBUG('a', "New address space pcb = {%d,%d}\n", pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
+		manager->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //insert into list of pcbs, sorted by pid
 
 		printf("Process [%d] Fork: start at address [%x] with [%d] pages memory\n", 
 			       pid, pc, fSpace->GetNumPages());
-		DEBUG('a', "New thread PCB = {%s,%d,%d}.\n", currentThread->getName(), pcb->GetPID(), pcb->GetParentPID());
 		fThread->space = fSpace;
-		//fThread->Fork(DummyFunction, pid);
-		//currentThread->space->RestoreState();
+
+		fThread->Fork(DummyFunction, pid);
+		currentThread->space->RestoreState();
 		
 		machine->WriteRegister(2, pid);
 		break;
@@ -164,13 +191,21 @@ ExceptionHandler(ExceptionType which)
 		int pid = machine->ReadRegister(2); //get process to kill
 
 		DEBUG('a', "Kill[%d], initiated by user program.\n", pid);
-
+		printf("System Call: [%d] invoked Kill\n", currentThread->space->pcb->GetPID());
 		break;
 	    }
 	    case SC_Yield:
 	    {
-		DEBUG('a', "Yeild, initiated by user program.\n");
+		DEBUG('a', "Yeild, initiated by user program %s.\n", currentThread->getName());
 		
+		if(currentThread->space->pcb->GetParent())
+		    DEBUG('a', "CurrentThread pcb = {%d,%d}\n", currentThread->space->pcb->GetPID(), 
+			  currentThread->space->pcb->GetParent()->space->pcb->GetPID());
+		else
+		    DEBUG('a', "CurrentThread pcb = {%d,%d}\n", currentThread->space->pcb->GetPID(), "NULL");
+
+		printf("System Call: [%d] invoked Yield\n", currentThread->space->pcb->GetPID() + 1);		
+
 		currentThread->Yield();
 
 		break;

@@ -1,5 +1,6 @@
 #include "pcbmanager.h"
 
+
 PCBManager* PCBManager::manager = NULL;
 
 PCBManager*
@@ -15,7 +16,7 @@ PCBManager::PCBManager()
     usedPids = 0;
     pidLock = new Lock("pcbmLock");
     pids = new BitMap(MAX_PID);
-    pcbs = new SynchList();
+    pcbs = new List();
 }
 
 PCBManager::~PCBManager()
@@ -67,4 +68,10 @@ PCBManager::GetFreePids()
     pidLock->Release();
 
     return count;
+}
+
+void* 
+PCBManager::RemovePCB(int pkey)
+{
+    return pcbs->Remove(pkey);
 }

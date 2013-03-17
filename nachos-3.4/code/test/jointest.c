@@ -3,15 +3,19 @@ int total;
 void sum()
 {
     int i;
-    for(i = 0; i < 1000; i++)
+    for(i = 0; i < 10; i++)
 	total++;
-    Exit(i);
+    Exit(i); 
 }
 
 int main()
 {
     int pid1 = Fork(sum);
-    Join(pid);
+    int pid2 = Fork(sum);
+
+    Join(pid1); 
+    Join(pid2); 
+                
 
     total++;
 

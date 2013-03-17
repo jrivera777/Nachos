@@ -152,9 +152,10 @@ ExceptionHandler(ExceptionType which)
 		printf("System Call: [%d] invoked Join\n", currentThread->space->pcb->GetPID());
 
 		PCB* child = (PCB*)currentThread->space->pcb->GetChild(pid);
-		Lock* pcbLock = child->pcbLock;
+
 		if(child != NULL)
 		{
+		    Lock* pcbLock = child->pcbLock;
 		    pcbLock->Acquire();
 		    child->pcbCond->Wait(pcbLock); //wait for child process to finish
 		    pcbLock->Release();

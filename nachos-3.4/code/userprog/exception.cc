@@ -210,10 +210,55 @@ ExceptionHandler(ExceptionType which)
 	    }
 	    case SC_Kill:
 	    {		
-		int pid = machine->ReadRegister(2); //get process to kill
+		int pid = machine->ReadRegister(4); //get process to kill
+		int succ = -1;
+		PCB* assassin = currentThread->space->pcb;
+		PCBManager* manager = PCBManager::GetInstance();
 
-		DEBUG('a', "Kill[%d], initiated by user program.\n", pid);
-		printf("System Call: [%d] invoked Kill\n", currentThread->space->pcb->GetPID());
+		printf("System Call: [%d] invoked Kill\n", assassin->GetPID());
+		
+		if(manager->pcbs->Contains(pid))
+		{
+
+		    if(pid == assassin->GetPID())
+		    {
+			DEBUG('a', "Proces [%d] committing seppuku...\n", pid);
+//			Exit(pid);
+			machine->WriteRegister(2, SC_Exit);
+			ExceptionHandler(which);
+		    }
+		    else
+		    {
+			PCB* victim = (PCB*)manager->pcbs->GetElement(pid);
+			if(!victim->children->IsEmpty())  //process to be killed has children
+			    victim->OrphanChildren();
+
+			Thread* parent = victim->GetParent();
+			if(parent != NULL) //If process has parent,it  must be removed from the parent's list of children
+			{
+			    DEBUG('a', "Attempt to remove self[%d]\n", pid);
+
+			    parent->space->pcb->RemoveChild(pid);
+			    
+			    DEBUG('a', "Removed self from parent\n");
+			    
+			    victim->SetExitStatus(assassin->GetPID());  //exit status is parent's pid
+			}
+			manager->RemovePCB(pid); // remove killed process from list of all processes
+			manager->ClearPID(pid); // free pid used by killed process
+			victim->GetThread()->space->FreePages(); //free memory used by killed process
+			threadToBeDestroyed = victim->GetThread();
+			scheduler->FindNextToRun();
+
+			succ = 0;
+			printf("Process [%d] killed process [%d]\n", assassin->GetPID(), pid);
+		    }
+		}
+		else
+		    printf("Process [%d] cannot kill process [%d]:doesn't exist\n", 
+			   currentThread->space->pcb->GetPID(), pid);
+
+		machine->WriteRegister(2, succ);
 		break;
 	    }
 	    case SC_Yield:

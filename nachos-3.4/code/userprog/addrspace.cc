@@ -65,7 +65,7 @@ SwapHeader (NoffHeader *noffH)
 //----------------------------------------------------------------------
 
 void
-AddrSpace::init(OpenFile* executable, Thread* parent)
+AddrSpace::init(OpenFile* executable, Thread* parent, Thread* selfThread)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -97,17 +97,18 @@ AddrSpace::init(OpenFile* executable, Thread* parent)
 
     PCBManager* pcbman = PCBManager::GetInstance();
 
-    pcb = new PCB(currentThread, pcbman->GetPID(), parent);
+    pcb = new PCB(selfThread, pcbman->GetPID(), parent);
     pcbman->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //keep track of new pcb
     if(pcb->GetParent())
-	DEBUG('a', "PCB(%s, %d, %d)\n", currentThread->getName(), pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
+	DEBUG('a', "PCB(%s, %d, %d)\n", selfThread->getName(), pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
     else
-	DEBUG('a', "PCB(%s, %d, %d)\n", currentThread->getName(), pcb->GetPID(), "NULL");
+	DEBUG('a', "PCB(%s, %d, %d)\n", selfThread->getName(), pcb->GetPID(), "NULL");
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 	pageTable[i].physicalPage = manager->GetPage();
+	bzero(machine->mainMemory + pageTable[i].physicalPage * PageSize, PageSize);
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
@@ -118,7 +119,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size);
+// bzero(machine->mainMemory, size);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
@@ -144,11 +145,15 @@ AddrSpace::init(OpenFile* executable, Thread* parent)
 AddrSpace::AddrSpace(){}
 AddrSpace::AddrSpace(OpenFile *executable)
 {
-    init(executable, NULL);
+    init(executable, NULL,currentThread);
 }
 AddrSpace::AddrSpace(OpenFile *executable, Thread* parent)
 {
-    init(executable, parent);
+    init(executable, parent, currentThread);
+}
+AddrSpace::AddrSpace(OpenFile *executable, Thread* parent, Thread* selfThread)
+{
+    init(executable, parent,selfThread);
 }
 
 //----------------------------------------------------------------------
@@ -161,21 +166,6 @@ AddrSpace::~AddrSpace()
    delete pageTable;
 }
 
-//----------------------------------------------------------------------
-// AddrSpace::InitRegisters
-// 	Set the initial values for the user-level register set.
-//
-// 	We write these directly into the "machine" registers, so
-//	that we can immediately jump to user code.  Note that these
-//	will be saved/restored into the currentThread->userRegisters
-//	when this thread is context switched out.
-//----------------------------------------------------------------------
-
-//int
-//AddrSpace::Translate(int i)
-//{
-//    return pageTable[i].physicalPage;
-//}
 int 
 AddrSpace::Translate(int virtAddr)
 {
@@ -198,7 +188,15 @@ AddrSpace::Translate(int virtAddr)
 	return physAddr;
 }
 
-
+//----------------------------------------------------------------------
+// AddrSpace::InitRegisters
+// 	Set the initial values for the user-level register set.
+//
+// 	We write these directly into the "machine" registers, so
+//	that we can immediately jump to user code.  Note that these
+//	will be saved/restored into the currentThread->userRegisters
+//	when this thread is context switched out.
+//----------------------------------------------------------------------
 void
 AddrSpace::InitRegisters()
 {
@@ -254,6 +252,9 @@ void AddrSpace::RestoreState()
 AddrSpace*
 AddrSpace::Fork()
 {
+//    if(numPages > manager->GetFreePages()) {
+//	return NULL;
+  //  }	
     AddrSpace* forkedSpace = new AddrSpace();
     forkedSpace->numPages = numPages;
     forkedSpace->manager = manager;
@@ -275,7 +276,7 @@ AddrSpace::Fork()
     return forkedSpace;
 }
 
-	int 
+int 
 AddrSpace::ReadFile(int virtAddr, OpenFile* file, int size, int fileAddr)
 {
 	char buffer[size]; 

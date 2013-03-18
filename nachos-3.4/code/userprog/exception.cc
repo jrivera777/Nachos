@@ -44,7 +44,32 @@ DummyFunction(int pc)
 {
     DEBUG('a', "Entered dummy function with PC=[%d]\n", pc);
     currentThread->RestoreUserState();  
+    currentThread->space->RestoreState();	
     machine->Run();
+}
+
+void
+ExecDummyFunction(int pc)
+{
+	DEBUG('a', "Entered Exec dummy function with PC=[%d]\n", pc);
+	currentThread->space->InitRegisters();
+	currentThread->space->RestoreState();
+	machine->Run();
+}
+
+void
+readPath(char *path, int cmd)
+{
+	int pos = 0,copied =0;
+	int phyAddr;
+
+	do {
+		machine->Translate(cmd, &phyAddr, 1,FALSE);
+		bcopy(&machine->mainMemory[phyAddr], path + copied, 1);
+		copied++;
+		cmd++;
+	}while(path[pos++] != 0);
+	path[pos]=0;
 }
 
 //----------------------------------------------------------------------
@@ -133,37 +158,40 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Exec:
 	    {
 		PCBManager* manager = PCBManager::GetInstance();
-		char* path = (char*)machine->ReadRegister(4); //get executable path
+		char path[32];
 		int pid = -1;
+
+                readPath(path,machine->ReadRegister(4)); //get executable path
 		
-		DEBUG('a', "Exec[%s], initiated by user program.\n", path);
+		DEBUG('a', "Exec[%s], initiated by user program.\n",path);
 		printf("System Call: [%d] invoked Exec\n", currentThread->space->pcb->GetPID() + 1);
 	
-		pid = 4;
-/*
 		OpenFile *executable = fileSystem->Open(path);
 		if (executable == NULL) {
 			printf("Unable to open file %s\n", path);
 		}
-		Thread *eThread = new Thread("forked process");
-		AddrSpace *eSpace;
-		eSpace = new AddrSpace(executable);
+		Thread* eThread = new Thread("exec process");
+		AddrSpace* eSpace = new AddrSpace(executable, currentThread, eThread);
 
-		pid = manager->GetPID();
-		ASSERT(pid >= 0);
-		PCB* ePcb = new PCB(eThread,pid,currentThread);
 
-		eSpace->pcb = ePcb;
+		pid = eSpace->pcb->GetPID();
+		DEBUG('a', "Exec[%s], address space created pid[%d].\n",path,pid);
+//		ASSERT(pid >= 0);
+//		PCB* ePcb = new PCB(eThread,pid,currentThread);
+
+//		eSpace->pcb = ePcb;
 		eThread->space = eSpace;
-		manager->pcbs->SortedInsert((void*)ePcb, ePcb->GetPID());
+//		manager->pcbs->SortedInsert((void*)ePcb, ePcb->GetPID());
 		delete executable; 
+//		currentThread->space->SaveState(); //save old registers
 
-		eSpace->InitRegisters();
-		eThread->Fork(DummyFunction, pid);
+		DEBUG('a', "Exec[%s], Init Register.\n",path);
+		eThread->Fork(ExecDummyFunction, pid);
+		DEBUG('a', "Exec[%s], Forked.\n",path);
 		currentThread->Yield();
-*/			
+			
 		if(pid >= 0)
-		    machine->WriteRegister(2, pid);
+		    machine->WriteRegister(2, 1);
 		    
 		break;
 	    }

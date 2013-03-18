@@ -124,14 +124,18 @@ AddrSpace::init(OpenFile* executable, Thread* parent)
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-			noffH.code.size, noffH.code.inFileAddr);
+	ReadFile(noffH.code.virtualAddr, executable, noffH.code.size,
+			noffH.code.inFileAddr);
+//        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
+//			noffH.code.size, noffH.code.inFileAddr);
     }
     if (noffH.initData.size > 0) {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-			noffH.initData.size, noffH.initData.inFileAddr);
+	ReadFile(noffH.initData.virtualAddr, executable, noffH.initData.size,
+			noffH.initData.inFileAddr);
+//        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
+//			noffH.initData.size, noffH.initData.inFileAddr);
     }
     printf("Loaded Program: [%d] code |  [%d] data | [%d] bss\n", codeSize, 
 	   initDataSize, uninitDataSize);
@@ -167,11 +171,33 @@ AddrSpace::~AddrSpace()
 //	when this thread is context switched out.
 //----------------------------------------------------------------------
 
-int
-AddrSpace::Translate(int i)
+//int
+//AddrSpace::Translate(int i)
+//{
+//    return pageTable[i].physicalPage;
+//}
+int 
+AddrSpace::Translate(int virtAddr)
 {
-    return pageTable[i].physicalPage;
+	int physAddr;
+	int vpn = virtAddr / PageSize;
+	int offset = virtAddr % PageSize;
+
+	if(vpn >= numPages){
+		DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
+		return -1;
+	}
+	if(! pageTable[vpn].valid){
+		DEBUG('a', "Translate VPN %d Invalid \n",virtAddr);
+		return -1;
+	}
+
+	physAddr = PageSize * pageTable[vpn].physicalPage + offset;
+	DEBUG('a', "Translate VPN %d to PFN %d \n",virtAddr,physAddr);
+
+	return physAddr;
 }
+
 
 void
 AddrSpace::InitRegisters()
@@ -249,10 +275,27 @@ AddrSpace::Fork()
     return forkedSpace;
 }
 
-int 
+	int 
 AddrSpace::ReadFile(int virtAddr, OpenFile* file, int size, int fileAddr)
 {
-    return 0;
+	char buffer[size]; 
+	int currentSize = file->ReadAt(buffer, size, fileAddr);
+	int readSize = 0, copied=  0;
+	int left = currentSize;
+	int phyAddr;
+
+	while (left > 0) {
+		phyAddr = Translate(virtAddr);
+	
+		ASSERT(phyAddr >= 0 );
+		readSize = min(PageSize,left);
+		bcopy(buffer+copied, &machine->mainMemory[phyAddr],readSize);
+
+		left -= readSize;
+		copied += readSize;
+		virtAddr += readSize;
+	}
+	return currentSize;
 }
 
 void

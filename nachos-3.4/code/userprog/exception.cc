@@ -74,6 +74,7 @@ void
 ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
+
     if(which == SyscallException)
     {
 	switch(type)
@@ -131,14 +132,38 @@ ExceptionHandler(ExceptionType which)
 	    }	    
 	    case SC_Exec:
 	    {
+		PCBManager* manager = PCBManager::GetInstance();
 		char* path = (char*)machine->ReadRegister(4); //get executable path
 		int pid = -1;
 		
 		DEBUG('a', "Exec[%s], initiated by user program.\n", path);
 		printf("System Call: [%d] invoked Exec\n", currentThread->space->pcb->GetPID() + 1);
-		
+	
+		pid = 4;
+/*
+		OpenFile *executable = fileSystem->Open(path);
+		if (executable == NULL) {
+			printf("Unable to open file %s\n", path);
+		}
+		Thread *eThread = new Thread("forked process");
+		AddrSpace *eSpace;
+		eSpace = new AddrSpace(executable);
+
+		pid = manager->GetPID();
+		ASSERT(pid >= 0);
+		PCB* ePcb = new PCB(eThread,pid,currentThread);
+
+		eSpace->pcb = ePcb;
+		eThread->space = eSpace;
+		manager->pcbs->SortedInsert((void*)ePcb, ePcb->GetPID());
+		delete executable; 
+
+		eSpace->InitRegisters();
+		eThread->Fork(DummyFunction, pid);
+		currentThread->Yield();
+*/			
 		if(pid >= 0)
-		    machine->WriteRegister(2, 1);
+		    machine->WriteRegister(2, pid);
 		    
 		break;
 	    }
@@ -169,13 +194,13 @@ ExceptionHandler(ExceptionType which)
 	    }
 	    case SC_Fork:
 	    {
+		    PCBManager* manager = PCBManager::GetInstance();
 		DEBUG('a', "Fork, initiated by user program.\n");
 
 		printf("System Call: [%d] invoked Fork\n", currentThread->space->pcb->GetPID());
 
 		currentThread->space->SaveState(); //save old registers
 
-		PCBManager* manager = PCBManager::GetInstance();
 		AddrSpace* fSpace = currentThread->space->Fork(); //make duplicate address space
 
 		Thread* fThread = new Thread("forked thread");

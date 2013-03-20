@@ -65,7 +65,7 @@ SwapHeader (NoffHeader *noffH)
 //----------------------------------------------------------------------
 
 void
-AddrSpace::init(OpenFile* executable, Thread* parent, Thread* selfThread)
+AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool replace)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -87,24 +87,31 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread* selfThread)
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
     manager = MemManager::GetInstance();
-    ASSERT(numPages <= manager->GetFreePages());	// check we're not trying
-						// to run anything too big --
-						// at least until we have
-						// virtual memory
+
+    if(replace)
+	    parent->space->FreePages();
+    if(numPages > manager->GetFreePages())
+    {
+	    printf("Not enough memory.\n");
+	    numPages = 0;
+	    return;
+    }
 
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					 manager->GetFreePages(), size);
 
     PCBManager* pcbman = PCBManager::GetInstance();
+    if(!replace){
+	    pcb = new PCB(selfThread, pcbman->GetPID(), parent);
+    }else{
+	    pcb = parent->space->pcb;
+	    delete parent->space->pageTable;
+    }
 
-    pcb = new PCB(selfThread, pcbman->GetPID(), parent);
     pcbman->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //keep track of new pcb
-    if(pcb->GetParent())
-	DEBUG('a', "PCB(%s, %d, %d)\n", selfThread->getName(), pcb->GetPID(), pcb->GetParent()->space->pcb->GetPID());
-    else
-	DEBUG('a', "PCB(%s, %d, %d)\n", selfThread->getName(), pcb->GetPID(), "NULL");
-// first, set up the translation 
     pageTable = new TranslationEntry[numPages];
+
+// first, set up the translation 
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 	pageTable[i].physicalPage = manager->GetPage();
@@ -116,10 +123,6 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread* selfThread)
 					// a separate page, we could set its 
 					// pages to be read-only
     }
-    
-// zero out the entire address space, to zero the unitialized data segment 
-// and the stack segment
-// bzero(machine->mainMemory, size);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
@@ -145,15 +148,15 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread* selfThread)
 AddrSpace::AddrSpace(){}
 AddrSpace::AddrSpace(OpenFile *executable)
 {
-    init(executable, NULL,currentThread);
+  init(executable, NULL, currentThread, false);
 }
 AddrSpace::AddrSpace(OpenFile *executable, Thread* parent)
 {
-    init(executable, parent, currentThread);
+    init(executable, parent, currentThread, false);
 }
-AddrSpace::AddrSpace(OpenFile *executable, Thread* parent, Thread* selfThread)
+AddrSpace::AddrSpace(OpenFile *executable, Thread* parent, Thread* selfThread,bool replace)
 {
-    init(executable, parent,selfThread);
+   init(executable, parent, selfThread, replace);
 }
 
 //----------------------------------------------------------------------
@@ -252,10 +255,14 @@ void AddrSpace::RestoreState()
 AddrSpace*
 AddrSpace::Fork()
 {
-//    if(numPages > manager->GetFreePages()) {
-//	return NULL;
-  //  }	
+    if(numPages > manager->GetFreePages()) {
+	return NULL;
+    }	
     AddrSpace* forkedSpace = new AddrSpace();
+    if(forkedSpace == NULL){
+	    return NULL;
+    }	
+
     forkedSpace->numPages = numPages;
     forkedSpace->manager = manager;
     forkedSpace->codeSize = codeSize;
@@ -266,11 +273,15 @@ AddrSpace::Fork()
     for (int i = 0; i < numPages; i++) 
     {
 	forkedSpace->pageTable[i].virtualPage = i;
-	forkedSpace->pageTable[i].physicalPage = pageTable[i].physicalPage;
+//	forkedSpace->pageTable[i].physicalPage = pageTable[i].physicalPage;
+	forkedSpace->pageTable[i].physicalPage = manager->GetPage();
 	forkedSpace->pageTable[i].valid = pageTable[i].valid;
 	forkedSpace->pageTable[i].use = pageTable[i].use;
 	forkedSpace->pageTable[i].dirty = pageTable[i].dirty;
 	forkedSpace->pageTable[i].readOnly = pageTable[i].readOnly;
+	bcopy(machine->mainMemory + pageTable[i].physicalPage * PageSize,
+		machine->mainMemory + forkedSpace->pageTable[i].physicalPage * PageSize, 
+		PageSize );
     }
 
     return forkedSpace;

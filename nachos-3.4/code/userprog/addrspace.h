@@ -26,6 +26,7 @@ class AddrSpace {
   public:
     AddrSpace(OpenFile *executable);
     AddrSpace(OpenFile *executable, Thread* parent);	// Create an address space,
+    AddrSpace(OpenFile *executable, Thread* parent, Thread* selfThread, bool replace);	// Create an address space,
     ~AddrSpace();					// initializing it with the program
                                                         // stored in the file "executable"
     			
@@ -47,7 +48,7 @@ class AddrSpace {
     int uninitDataSize;
 private:
     AddrSpace();   //empty constructor for Fork Operation
-    void init(OpenFile* executable, Thread* parent); //moved noff data reading and page table building here
+    void init(OpenFile* executable, Thread* parent, Thread* selfThread, bool replace); //moved noff data reading and page table building here
     TranslationEntry *pageTable;
     unsigned int numPages;		                 
     MemManager* manager;  //Memory Manager reference

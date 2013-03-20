@@ -49,15 +49,6 @@ DummyFunction(int pc)
 }
 
 void
-ExecDummyFunction(int pc)
-{
-	DEBUG('a', "Entered Exec dummy function with PC=[%d]\n", pc);
-	currentThread->space->InitRegisters();
-	currentThread->space->RestoreState();
-	machine->Run();
-}
-
-void
 readPath(char *path, int cmd)
 {
 	int pos = 0,copied =0;
@@ -115,9 +106,7 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Exit:
 	    {
 		int status = machine->ReadRegister(4); // retreive given exit status
-
 		DEBUG('a', "Exit[%d], initiated by user program.\n", status);
-
 		printf("System Call: [%d] invoked Exit\n", currentThread->space->pcb->GetPID());
 
 		PCB* currentPCB = currentThread->space->pcb;
@@ -138,7 +127,6 @@ ExceptionHandler(ExceptionType which)
 		    currentPCB->SetExitStatus(currentPCB->GetParent()->space->pcb->GetPID());  //exit status is parent's pid
 		    DEBUG('a', "Set exit status\n");
 		}
-		
 
 		PCBManager* manager = PCBManager::GetInstance();
 		manager->RemovePCB(currentPCB->GetPID()); //remove PCB from list of PCBs
@@ -164,35 +152,36 @@ ExceptionHandler(ExceptionType which)
                 readPath(path,machine->ReadRegister(4)); //get executable path
 		
 		DEBUG('a', "Exec[%s], initiated by user program.\n",path);
-		printf("System Call: [%d] invoked Exec\n", currentThread->space->pcb->GetPID() + 1);
+		printf("System Call: [%d] invoked Exec\n", currentThread->space->pcb->GetPID());
 	
 		OpenFile *executable = fileSystem->Open(path);
 		if (executable == NULL) {
 			printf("Unable to open file %s\n", path);
+			machine->WriteRegister(2, -1);
+			break;
 		}
-		Thread* eThread = new Thread("exec process");
-		AddrSpace* eSpace = new AddrSpace(executable, currentThread, eThread);
 
+		AddrSpace* eSpace = new AddrSpace(executable, currentThread, currentThread, true);
+		if(eSpace == NULL){
+			printf("Unable to create Address Space\n");
+			machine->WriteRegister(2, -1);
+			break;
+		}
 
 		pid = eSpace->pcb->GetPID();
 		DEBUG('a', "Exec[%s], address space created pid[%d].\n",path,pid);
-//		ASSERT(pid >= 0);
-//		PCB* ePcb = new PCB(eThread,pid,currentThread);
-
-//		eSpace->pcb = ePcb;
-		eThread->space = eSpace;
-//		manager->pcbs->SortedInsert((void*)ePcb, ePcb->GetPID());
+		printf("Exec Program: [%d] loading [%s]\n", pid, path);
 		delete executable; 
-//		currentThread->space->SaveState(); //save old registers
-
-		DEBUG('a', "Exec[%s], Init Register.\n",path);
-		eThread->Fork(ExecDummyFunction, pid);
-		DEBUG('a', "Exec[%s], Forked.\n",path);
-		currentThread->Yield();
-			
 		if(pid >= 0)
-		    machine->WriteRegister(2, 1);
-		    
+		    machine->WriteRegister(2, pid);
+		else
+			machine->WriteRegister(2, -1);
+
+		eSpace->InitRegisters();
+		currentThread->space = eSpace;
+		eSpace->RestoreState();
+		machine->Run();
+
 		break;
 	    }
 	    case SC_Join:
@@ -230,6 +219,11 @@ ExceptionHandler(ExceptionType which)
 		currentThread->space->SaveState(); //save old registers
 
 		AddrSpace* fSpace = currentThread->space->Fork(); //make duplicate address space
+		if(fSpace == NULL){
+			printf("Unable to create Address Space\n");
+			machine->WriteRegister(2, -1);
+			break;
+		}
 
 		Thread* fThread = new Thread("forked thread");
 

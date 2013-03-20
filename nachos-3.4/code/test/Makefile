@@ -35,7 +35,7 @@ CPP = gcc -E
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt shell matmult sort forktest jointest killtest
+all: halt shell matmult sort fork join kill exec memory
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.c > strt.s
@@ -66,20 +66,30 @@ matmult: matmult.o start.o
 	$(LD) $(LDFLAGS) start.o matmult.o -o matmult.coff
 	../bin/coff2noff matmult.coff matmult
 
-forktest.o: forktest.c
-	$(CC) $(CFLAGS) -c forktest.c
-forktest: forktest.o start.o
-	$(LD) $(LDFLAGS) start.o forktest.o -o forktest.coff
-	../bin/coff2noff forktest.coff forktest
+fork.o: fork.c
+	$(CC) $(CFLAGS) -c fork.c
+fork: fork.o start.o
+	$(LD) $(LDFLAGS) start.o fork.o -o fork.coff
+	../bin/coff2noff fork.coff fork
 
-jointest.o: jointest.c
-	$(CC) $(CFLAGS) -c jointest.c
-jointest: jointest.o start.o
-	$(LD) $(LDFLAGS) start.o jointest.o -o jointest.coff
-	../bin/coff2noff jointest.coff jointest
+join.o: join.c
+	$(CC) $(CFLAGS) -c join.c
+join: join.o start.o
+	$(LD) $(LDFLAGS) start.o join.o -o join.coff
+	../bin/coff2noff join.coff join
 
-killtest.o: killtest.c
-	$(CC) $(CFLAGS) -c killtest.c
-killtest: killtest.o start.o
-	$(LD) $(LDFLAGS) start.o killtest.o -o killtest.coff
-	../bin/coff2noff killtest.coff killtest
+kill.o: kill.c
+	$(CC) $(CFLAGS) -c kill.c
+kill: kill.o start.o
+	$(LD) $(LDFLAGS) start.o kill.o -o kill.coff
+	../bin/coff2noff kill.coff kill
+exec.o: exec.c
+	$(CC) $(CFLAGS) -c exec.c
+exec: exec.o start.o
+	$(LD) $(LDFLAGS) start.o exec.o -o exec.coff
+	../bin/coff2noff exec.coff exec
+memory.o: memory.c
+	$(CC) $(CFLAGS) -c memory.c
+memory: memory.o start.o
+	$(LD) $(LDFLAGS) start.o memory.o -o memory.coff
+	../bin/coff2noff memory.coff memory

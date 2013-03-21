@@ -7,8 +7,8 @@ Project 2
 
 RUNNING OUR TEST PROGRAMS:
 
-We have created several test programs in the code/test/ directory,
-including forktest.c, jointest.c, and killtest.c.
+We have placed several test programs in the code/test/ directory,
+including fork.c, join.c, kill.c, and exec.c.
 
 First, please make sure userprog/Makefile has -DCHANGED defined. This
 is needed to make sure all synchronization code works.
@@ -16,6 +16,8 @@ To define this, you can either do so manually, or use the provided
 python script, replace.py, by calling 
 
     python replace.py -DCHANGED
+
+from within the userprog directory.
 
 Once done, you can call each test from the userprog directory by doing:
 
@@ -29,11 +31,39 @@ properly compiled like the others.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ==========================================================================
 
+------------
 New Classes:
+------------
 
-PCB:...
+PCB:  
 
-PCBManager:...
+Represents a Process Control Block.  Each process created
+in the system has one.  It contains a list of child processes, a reference to 
+a parent thread, a unique PID, and an exit status, as well as some functionality
+to handle adding, removing, and "orphaning" children. Orphaning children basically
+means removing their parent reference, making them zombie processes.
 
-MemManager:...
+PCBManager:
 
+The PCBManager class dispenses and frees unique PIDs to new PCBs and keeps a list of 
+all PCBs in the system while they exist. A BitMap is used to easily keep track of pids.
+
+MemManager:
+
+The MemManager class dispenses unused pages to processes and frees them for use.
+A BitMap is used to easily keep track of free and used pages.
+
+-----------------
+Modified Classes:
+-----------------
+
+list.h and list.cc:
+
+We added several functions to this class to make additions and removals easier.
+The class is used in pcb.h and pcbmanager.h
+
+addrspace.h and addrspace.cc
+
+We have added 3 extra constructors to this class.
+
+The first takes no 

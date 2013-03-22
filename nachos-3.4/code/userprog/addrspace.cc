@@ -76,7 +76,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     	SwapHeader(&noffH);
     ASSERT(noffH.noffMagic == NOFFMAGIC);
 
-// how big is address space?
+    // how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
 			+ UserStackSize;	// we need to increase the size
 						// to leave room for the stack
@@ -111,29 +111,27 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     pcbman->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //keep track of new pcb
     pageTable = new TranslationEntry[numPages];
 
-// first, set up the translation 
+    // first, set up the translation 
     for (i = 0; i < numPages; i++) {
-	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+	pageTable[i].virtualPage = i;
 	pageTable[i].physicalPage = manager->GetPage();
 	bzero(machine->mainMemory + pageTable[i].physicalPage * PageSize, PageSize);
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
-	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
-					// a separate page, we could set its 
-					// pages to be read-only
+	pageTable[i].readOnly = FALSE; 
     }
 
-// then, copy in the code and data segments into memory
-    if (noffH.code.size > 0) {
+    // then, copy in the code and data segments into memory
+    if (noffH.code.size > 0) 
+    {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
 	ReadFile(noffH.code.virtualAddr, executable, noffH.code.size,
 			noffH.code.inFileAddr);
-//        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-//			noffH.code.size, noffH.code.inFileAddr);
     }
-    if (noffH.initData.size > 0) {
+    if (noffH.initData.size > 0) 
+    {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
 	ReadFile(noffH.initData.virtualAddr, executable, noffH.initData.size,
@@ -227,13 +225,10 @@ AddrSpace::InitRegisters()
 // 	On a context switch, save any machine state, specific
 //	to this address space, that needs saving.
 //
-//	For now, nothing!
 //----------------------------------------------------------------------
 
 void AddrSpace::SaveState() 
 {
-//    pageTable = machine->pageTable;
-    //  numPages = machine->pageTableSize;
     currentThread->SaveUserState();
 }
 
@@ -249,7 +244,6 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
-//    currentThread->RestoreUserState();
 }
 
 AddrSpace*
@@ -273,7 +267,6 @@ AddrSpace::Fork()
     for (int i = 0; i < numPages; i++) 
     {
 	forkedSpace->pageTable[i].virtualPage = i;
-//	forkedSpace->pageTable[i].physicalPage = pageTable[i].physicalPage;
 	forkedSpace->pageTable[i].physicalPage = manager->GetPage();
 	forkedSpace->pageTable[i].valid = pageTable[i].valid;
 	forkedSpace->pageTable[i].use = pageTable[i].use;

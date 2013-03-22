@@ -211,7 +211,7 @@ ExceptionHandler(ExceptionType which)
 	    }
 	    case SC_Fork:
 	    {
-		    PCBManager* manager = PCBManager::GetInstance();
+		PCBManager* manager = PCBManager::GetInstance();
 		DEBUG('a', "Fork, initiated by user program.\n");
 
 		printf("System Call: [%d] invoked Fork\n", currentThread->space->pcb->GetPID());
@@ -270,7 +270,6 @@ ExceptionHandler(ExceptionType which)
 		    if(pid == assassin->GetPID())
 		    {
 			DEBUG('a', "Proces [%d] committing seppuku...\n", pid);
-//			Exit(pid);
 			machine->WriteRegister(2, SC_Exit);
 			ExceptionHandler(which);
 		    }
@@ -295,6 +294,12 @@ ExceptionHandler(ExceptionType which)
 			manager->ClearPID(pid); // free pid used by killed process
 			victim->GetThread()->space->FreePages(); //free memory used by killed process
 			threadToBeDestroyed = victim->GetThread();
+			
+			Lock* pcbLock = victim->pcbLock;
+			pcbLock->Acquire();
+			victim->pcbCond->Broadcast(pcbLock); //wake up any threads waiting for finish
+			pcbLock->Release();			
+			
 			scheduler->FindNextToRun();
 
 			succ = 0;
@@ -320,9 +325,7 @@ ExceptionHandler(ExceptionType which)
 
 		printf("System Call: [%d] invoked Yield\n", currentThread->space->pcb->GetPID());		
 
-//		currentThread->space->SaveState();
 		currentThread->Yield();
-//		currentThread->RestoreUserState();
 		
 		break;
 	    }

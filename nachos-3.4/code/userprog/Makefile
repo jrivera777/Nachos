@@ -10,8 +10,6 @@
 # of liability and disclaimer of warranty provisions.
 
 DEFINES = -DUSER_PROGRAM -DFILESYS_NEEDED -DFILESYS_STUB -DCHANGED
-INCPATH = -I../threads -I../machine
-INCPATH = -I../threads -I../machine
 INCPATH = -I../bin -I../filesys -I../userprog -I../threads -I../machine
 HFILES = $(THREAD_H) $(USERPROG_H)
 CFILES = $(THREAD_C) $(USERPROG_C)

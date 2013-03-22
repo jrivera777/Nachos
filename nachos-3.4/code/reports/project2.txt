@@ -57,13 +57,91 @@ A BitMap is used to easily keep track of free and used pages.
 Modified Classes:
 -----------------
 
+We added the kill syscall to syscall.h, and the necessary code to start.s
+
 list.h and list.cc:
+-------------------
 
 We added several functions to this class to make additions and removals easier.
 The class is used in pcb.h and pcbmanager.h
 
 addrspace.h and addrspace.cc
+----------------------------
 
-We have added 3 extra constructors to this class.
+We have changed the Address space constructor, and added 3 more. The default
+constructor, with no parameters, does nothing, but is used during 
+the AddrSpace::Fork operation.
 
-The first takes no 
+AddrSpace::init has been changed significantly. A boolean flag is now used
+to determine whether or not a new pageTable is created. The pageTable entries 
+no longer have a 1-to-1 relationship between virtual and physical pages.
+Instead, free physical pages are obtained from a Memmanager instance. 
+
+The AddrSpace::Translate function receives a virtual address, calculates a
+virtual page number and offset, and finally returns a physical address obtained
+by using the virtual page number and offset.
+
+The AddrSpace::Fork function returns a duplicate of the address space that calls
+it. The main difference between the two address spaces, are the physical pages they
+use.
+
+The AddrSpace::ReadFile function copies a file's code into main memory. 
+AddrSpace::FreePages() releases all held pages for use by other address spaces.
+
+exception.cc
+------------
+
+This is where the implementations of our syscalls reside. We have a function,
+UpdatePCRegs, which updates the PC registers. It is called after each system call.
+
+Halt Syscall: Simply calls the interrupt halt function.
+
+Exit Syscall: Following the suggests made during lab sessions, we check if
+the calling process has children, and if so, make them zombies. If the process
+has a parent as well, we remove it from that parent's list of children. 
+The PCBManager then removes the process' PCB from it's list. Then, the process
+frees the pages it had, as well as it's PID.  Finally, the process wakes up any
+other processes waiting on it and calls Thread::Finish.
+
+Exec Syscall: First the function attempts to retrieve the executable file from
+the given path.  If successful, the current process' addressspace is updated to 
+have the executable information. This includes updating the PC registers to 
+start at the beginning of the new executable code.
+
+Join syscall: If the process to be joined on is a child of the caller, the parent
+simply waits on a Condition variable of the child PCB. Once that child exits, 
+the waiting parent would be woken up, and continue to run.
+
+Fork Syscall:  Here we save the registers of the current process, then duplicate
+its address space. Next, we make a new Thread and PCB for the new process. The
+new PCB is added to the PCBManager after receiving a new PID. It is also added to
+the list of children of the calling process. Finally, the new thread runs a dummy
+function that restores the new processes registers to the machine and then calls
+the machine run function.
+
+Kill Syscall: If the pid is the same as the callers, it runs the exit syscall code.
+If the process to be killed has children, they are made into zombies. The process
+is also removed from it's parent child list. The exit status is then set in its PCB.
+The processes used pages and PID are then freed. Finally, any waiting threads are woken,
+the thread is marked to be destroyed, and the scheduler is made to find the next 
+process to run.
+
+Yield() Syscall:  Calls the thread yield function.
+
+
+Group Contributions
+===================
+
+All three of us worked hard on this project.  We spent time discussing each
+syscall, reading documentation and code, and implementing each of them.
+We all had a hand in each syscall (for halt and yield, it was just 
+agreeing on their simplicity). We each wrote what we thought was a 
+good way to implement something, then we would review each other's 
+code and make suggestions and corrections. We are using a private git 
+repository to make this easier. 
+
+
+We all agree this project was significantly more difficult than the last, 
+but a great experience nonetheless. From running our tests, our code seems to
+work properly.  We used the tests uploaded to moodle, so the expected output
+was that of the .out files there.

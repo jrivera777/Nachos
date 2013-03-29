@@ -1,5 +1,5 @@
+#include <string.h>
 #include "pcbmanager.h"
-
 
 PCBManager* PCBManager::manager = NULL;
 
@@ -76,3 +76,17 @@ PCBManager::RemovePCB(int pkey)
 {
     return pcbs->Remove(pkey);
 }
+
+UserOpenFile*
+PCBManager::GetUserFile(int pid, char* fname)
+{
+    int i;
+    PCB* pcb = (PCB*)pcbs->GetElement(pid); //find necessary PCB
+
+    for(i = 0; i < pcb->lastFile; i++) //search for file
+    {
+	if(strcmp(pcb->files[i]->name, fname) == 0)
+	    return  pcb->files[i];
+    }
+    return NULL;
+};

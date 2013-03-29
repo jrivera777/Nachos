@@ -4,6 +4,7 @@
 #include "synch.h"
 #include "bitmap.h"
 #include "list.h"
+#include "useropenfile.h"
 
 #define MAX_PID 512
 
@@ -16,6 +17,7 @@ public:
     bool ClearPID(int which);
     int GetFreePids();
     void* RemovePCB(int pkey);
+    UserOpenFile* GetUserFile(int pid, char* fname);
     List* pcbs;
 private:
     PCBManager();

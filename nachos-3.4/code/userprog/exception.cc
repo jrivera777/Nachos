@@ -26,6 +26,7 @@
 #include "syscall.h"
 #include "pcbmanager.h"
 #include "pcb.h"
+#include "filesys.h"
 
 //Move PC register to next instruction
 //Update PrevPC and NextPC registers appropriately
@@ -102,6 +103,27 @@ ExceptionHandler(ExceptionType which)
 		interrupt->Halt();
 
 		break;
+	    }
+	    case SC_Create:
+	    {
+		char path[32];
+
+		printf("System Call: [%d] invoked Create\n", currentThread->space->pcb->GetPID() + 1);
+
+                readPath(path,machine->ReadRegister(4)); //get executable path
+		fileSystem->Create(path, 0);
+	    }
+	    case SC_Open:
+	    {
+		char path[32];
+		PCBManager* manager = PCBManager::GetInstance();
+		
+		printf("System Call: [%d] invoked Create\n", currentThread->space->pcb->GetPID() + 1);
+
+                readPath(path,machine->ReadRegister(4)); //get executable path
+
+		
+		
 	    }
 	    case SC_Exit:
 	    {

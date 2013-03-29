@@ -102,17 +102,23 @@ VM_O =
 FILESYS_H =../filesys/directory.h \
 	../filesys/filehdr.h\
 	../filesys/filesys.h \
+	../filesys/sysopenfile.h\
+	../filesys/useropenfile.h\
+	../filesys/filemanager.h\
 	../filesys/openfile.h\
 	../filesys/synchdisk.h\
 	../machine/disk.h
 FILESYS_C =../filesys/directory.cc\
 	../filesys/filehdr.cc\
 	../filesys/filesys.cc\
+	../filesys/sysopenfile.cc\
+	../filesys/useropenfile.cc\
+	../filesys/filemanager.cc\
 	../filesys/fstest.cc\
 	../filesys/openfile.cc\
 	../filesys/synchdisk.cc\
 	../machine/disk.cc
-FILESYS_O =directory.o filehdr.o filesys.o fstest.o openfile.o synchdisk.o\
+FILESYS_O =directory.o filehdr.o filesys.o sysopenfile.o useropenfile.o filemanager.o fstest.o openfile.o synchdisk.o\
 	disk.o
 
 NETWORK_H = ../network/post.h ../machine/network.h

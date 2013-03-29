@@ -8,6 +8,7 @@ PCB::PCB(Thread* t, int id, Thread* par)
     children = new List();
     pcbLock = new Lock("pcbLock");
     pcbCond = new Condition("pcbCond");
+    lastFile = 0;
 }
 
 bool

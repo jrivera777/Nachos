@@ -5,10 +5,14 @@
 #include "bitmap.h"
 #include "list.h"
 #include "synch.h"
+#include "filemanager.h"
+#include "useropenfile.h"
+
 
 class Thread;
 class Lock;
 class Condition;
+class UserOpenFile;
 class PCB
 {
  public:
@@ -18,15 +22,17 @@ class PCB
     Thread* GetParent() {return parent;};
     Thread* GetThread() {return thrd;};
     void SetParent(Thread* val) { parent = val;}
-    List* children;
-    Lock* pcbLock;
-    Condition* pcbCond;
     bool isChild(int pkey);
     void* GetChild(int pkey);
     void* RemoveChild(int pkey);
     void OrphanChildren();
     int GetExitStatus(){return exitStatus;}
     void SetExitStatus(int val){exitStatus = val;}
+    List* children;
+    Lock* pcbLock;
+    Condition* pcbCond;
+    UserOpenFile* files[MAX_FILES];
+    int lastFile;
  private:
     int pid;
     int exitStatus;

@@ -18,6 +18,7 @@ class FileManager
     int GetFID();
     bool ClearFID(int which);
     int GetFreeFids();
+    int GetSysOpenFile(char* file);
     SysOpenFile* files[MAX_FILES];
  private:
     BitMap*    fids;

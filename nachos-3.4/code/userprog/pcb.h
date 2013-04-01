@@ -31,8 +31,9 @@ class PCB
     List* children;
     Lock* pcbLock;
     Condition* pcbCond;
-    UserOpenFile* files[MAX_FILES];
-    int lastFile;
+    List* files;
+    //UserOpenFile* files[MAX_FILES];
+    //int lastFile;
  private:
     int pid;
     int exitStatus;

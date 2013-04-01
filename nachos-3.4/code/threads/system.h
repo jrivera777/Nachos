@@ -15,7 +15,6 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
-#include "filemanager.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -38,7 +37,7 @@ extern Machine* machine;	// user program memory and registers
 #ifdef FILESYS_NEEDED 		// FILESYS or FILESYS_STUB 
 #include "filesys.h"
 #include "filemanager.h"
-extern FileSystem  *fileSystem;
+extern FileSystem *fileSystem;
 extern FileManager* fileManager;
 #endif
 

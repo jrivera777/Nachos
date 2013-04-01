@@ -27,6 +27,7 @@
 #include "pcbmanager.h"
 #include "pcb.h"
 #include "filesys.h"
+#include "filemanager.h"
 
 //Move PC register to next instruction
 //Update PrevPC and NextPC registers appropriately
@@ -99,7 +100,7 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Halt:
 	    {
 		DEBUG('a', "Shutdown, initiated by user program.\n");
-		printf("System Call: [%d] invoked Halt\n", currentThread->space->pcb->GetPID() + 1);
+		printf("System Call: [%d] invoked Halt\n", currentThread->space->pcb->GetPID());
 		interrupt->Halt();
 
 		break;
@@ -108,22 +109,79 @@ ExceptionHandler(ExceptionType which)
 	    {
 		char path[32];
 
-		printf("System Call: [%d] invoked Create\n", currentThread->space->pcb->GetPID() + 1);
+		printf("System Call: [%d] invoked Create\n", currentThread->space->pcb->GetPID());
 
                 readPath(path,machine->ReadRegister(4)); //get executable path
 		fileSystem->Create(path, 0);
+
+		break;
 	    }
 	    case SC_Open:
 	    {
 		char path[32];
-		PCBManager* manager = PCBManager::GetInstance();
 		
-		printf("System Call: [%d] invoked Create\n", currentThread->space->pcb->GetPID() + 1);
+		printf("System Call: [%d] invoked Open\n", currentThread->space->pcb->GetPID());
 
                 readPath(path,machine->ReadRegister(4)); //get executable path
+		DEBUG('w', "Read File name \"%s\"\n", path);
+		int sysfid = fileManager->GetSysOpenFile(path);
+		if(sysfid < 0)
+		{
+		    DEBUG('w', "File \"%s\" not in File Table!\n", path);
+		    OpenFile* ofile = fileSystem->Open(path);
+		    if(ofile == NULL)
+			printf("File \"%s\" not found!\n");
+		    else
+		    {
+			int id = fileManager->GetFID();
+			if(id < 0)
+			    printf("Failed to Open file \"%s\". No more files allowed!\n", path);
+			else
+			{
+			    DEBUG('w', "File \"%s\" now has id %d\n", path, id);
+			    SysOpenFile* sfile = new SysOpenFile(id, path, ofile);
+			    DEBUG('w', "Created new SysOpenFile\n");
+			    sfile->count++;
+			    fileManager->files[id] = sfile;
+			    DEBUG('w', "Associated SysOpenFile with fileManager\n");
+			    UserOpenFile* ufile = new UserOpenFile(path, id);
+			    DEBUG('w', "Made new UserOpenFile\n");
+			    PCB* currPCB = currentThread->space->pcb;
+			    currPCB->files->SortedInsert((void*)ufile, id);
+			    DEBUG('w', "Added UserOpenFile to currentPCB's list of files\n");
+			}
+		    }
+		}
+		else
+		{
+		    DEBUG('w', "\"%s\" already exists with id %d.\n", path, sysfid);
+		    fileManager->files[sysfid]->count++;
+		    DEBUG('w', "File \"%s\" now has %d process(es) using it.\n", path, fileManager->files[sysfid]->count);
+		}
+		DEBUG('w', "Sending fid %d back\n", sysfid);
+		machine->WriteRegister(2, sysfid);
+		
+		break;
+	    }
+	    case SC_Close:
+	    {
+		printf("System Call: [%d] invoked Close\n", currentThread->space->pcb->GetPID());
 
+		int fid = machine->ReadRegister(4);
+		PCB* currPCB = currentThread->space->pcb;
+		UserOpenFile* ufile = (UserOpenFile*)currPCB->files->Remove(fid);
 		
-		
+		DEBUG('w', "Found UserOpenFile to remove with fid = %d\n", fid);
+		if(fileManager->files[fid]->count > 0)
+		    fileManager->files[fid]->count--;
+		else
+		{
+		    DEBUG('w', "No more references to file %d\n", fid);
+		    fileManager->files[fid] = NULL;
+		    fileManager->ClearFID(fid);
+		}
+
+		break;
 	    }
 	    case SC_Exit:
 	    {
@@ -167,7 +225,7 @@ ExceptionHandler(ExceptionType which)
 	    }	    
 	    case SC_Exec:
 	    {
-		PCBManager* manager = PCBManager::GetInstance();
+		//PCBManager* manager = PCBManager::GetInstance();
 		char path[32];
 		int pid = -1;
 

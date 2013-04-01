@@ -6,11 +6,18 @@ PCB::PCB(Thread* t, int id, Thread* par)
     parent = par;
     thrd = t;
     children = new List();
+    files = new List();
     pcbLock = new Lock("pcbLock");
     pcbCond = new Condition("pcbCond");
-    lastFile = 0;
+//    lastFile = 0;
 }
-
+PCB::~PCB()
+{
+    delete children;
+    delete files;
+    delete pcbLock;
+    delete pcbCond;
+}
 bool
 PCB::isChild(int pkey)
 {

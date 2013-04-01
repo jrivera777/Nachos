@@ -5,7 +5,7 @@
 class UserOpenFile
 {
  public:
-    UserOpenFile(char* fname, int id);
+    UserOpenFile(char* fname, int idx);
     ~UserOpenFile();
     int index;
     char* name;

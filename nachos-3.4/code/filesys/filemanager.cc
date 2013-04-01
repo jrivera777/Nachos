@@ -1,4 +1,5 @@
 #include "filemanager.h"
+#include <string.h>
 
 FileManager::FileManager()
 {
@@ -44,4 +45,18 @@ FileManager::GetFreeFids()
     fidLock->Release();
 
     return count;
+}
+int
+FileManager::GetSysOpenFile(char* file)
+{
+    int i;
+    int numFiles = MAX_FILES - GetFreeFids();
+    for(i = 0; i < numFiles; i++)
+    {
+	DEBUG('w', "Current File = %s\n", files[i]->name);
+	if(strcmp(files[i]->name, file) == 0)
+	    return i;
+    }
+    
+    return -1;
 }

@@ -1,8 +1,8 @@
 #include "useropenfile.h"
 
-UserOpenFile::UserOpenFile(char* fname, int id)
+UserOpenFile::UserOpenFile(char* fname, int idx)
 {
     name = fname;
-    index = id;
+    index = idx;
     offset = 0;
 }

@@ -7,7 +7,7 @@
 # All rights reserved.  See copyright.h for copyright notice and limitation 
 # of liability and disclaimer of warranty provisions.
 
-DEFINES = -DTHREADS -DCHANGED -DHW1_SEMAPHORES
+DEFINES = -DTHREADS -DCHANGED
 INCPATH = -I../threads -I../machine
 INCPATH = -I../threads -I../machine
 INCPATH = -I../threads -I../machine

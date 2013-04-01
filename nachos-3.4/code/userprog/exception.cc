@@ -125,6 +125,7 @@ ExceptionHandler(ExceptionType which)
                 readPath(path,machine->ReadRegister(4)); //get executable path
 		DEBUG('w', "Read File name \"%s\"\n", path);
 		int sysfid = fileManager->GetSysOpenFile(path);
+		DEBUG('w', "Found sysfid = %d\n", sysfid);
 		if(sysfid < 0)
 		{
 		    DEBUG('w', "File \"%s\" not in File Table!\n", path);
@@ -140,15 +141,16 @@ ExceptionHandler(ExceptionType which)
 			{
 			    DEBUG('w', "File \"%s\" now has id %d\n", path, id);
 			    SysOpenFile* sfile = new SysOpenFile(id, path, ofile);
-			    DEBUG('w', "Created new SysOpenFile\n");
+//			    DEBUG('w', "Created new SysOpenFile(%d, %s)\n", id, path);
 			    sfile->count++;
 			    fileManager->files[id] = sfile;
-			    DEBUG('w', "Associated SysOpenFile with fileManager\n");
+//			    DEBUG('w', "Associated SysOpenFile with fileManager\n");
 			    UserOpenFile* ufile = new UserOpenFile(path, id);
-			    DEBUG('w', "Made new UserOpenFile\n");
+//			    DEBUG('w', "Made new UserOpenFile\n");
 			    PCB* currPCB = currentThread->space->pcb;
 			    currPCB->files->SortedInsert((void*)ufile, id);
-			    DEBUG('w', "Added UserOpenFile to currentPCB's list of files\n");
+// 			    DEBUG('w', "Added UserOpenFile to currentPCB's list of files\n");
+			    sysfid = id;
 			}
 		    }
 		}
@@ -158,6 +160,12 @@ ExceptionHandler(ExceptionType which)
 		    fileManager->files[sysfid]->count++;
 		    DEBUG('w', "File \"%s\" now has %d process(es) using it.\n", path, fileManager->files[sysfid]->count);
 		}
+
+		int j;
+		for(j = 0; j < MAX_FILES; j++)
+		    if(fileManager->files[j] != NULL)
+			DEBUG('w', "%s\n", fileManager->files[j]->name);
+		
 		DEBUG('w', "Sending fid %d back\n", sysfid);
 		machine->WriteRegister(2, sysfid);
 		
@@ -168,19 +176,22 @@ ExceptionHandler(ExceptionType which)
 		printf("System Call: [%d] invoked Close\n", currentThread->space->pcb->GetPID());
 
 		int fid = machine->ReadRegister(4);
-		PCB* currPCB = currentThread->space->pcb;
-		UserOpenFile* ufile = (UserOpenFile*)currPCB->files->Remove(fid);
-		
-		DEBUG('w', "Found UserOpenFile to remove with fid = %d\n", fid);
-		if(fileManager->files[fid]->count > 0)
-		    fileManager->files[fid]->count--;
-		else
+		if(fid >= 0)
 		{
-		    DEBUG('w', "No more references to file %d\n", fid);
-		    fileManager->files[fid] = NULL;
-		    fileManager->ClearFID(fid);
+		    PCB* currPCB = currentThread->space->pcb;
+		    UserOpenFile* ufile = (UserOpenFile*)currPCB->files->Remove(fid);
+		    
+		    DEBUG('w', "Found UserOpenFile to remove with fid = %d\n", fid);
+		    fileManager->files[fid]->count--;
+		    if(fileManager->files[fid]->count > 0)
+			DEBUG('w', "%d process(es) now watching file %d\n", fileManager->files[fid]->count, fid);
+		    else
+		    {
+			DEBUG('w', "No more references to file %d\n", fid);
+			fileManager->files[fid] = NULL;
+			fileManager->ClearFID(fid);
+		    }
 		}
-
 		break;
 	    }
 	    case SC_Exit:

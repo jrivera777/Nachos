@@ -5,6 +5,8 @@ FileManager::FileManager()
 {
     fids = new BitMap(MAX_FILES);
     fidLock = new Lock("file manager lock");
+    fids->Mark(0); //0, 1 used for stdin and stdout, respectively
+    fids->Mark(1);
 }
 
 int
@@ -51,7 +53,7 @@ FileManager::GetSysOpenFile(char* file)
 {
     int i;
     int numFiles = MAX_FILES - GetFreeFids();
-    for(i = 0; i < numFiles; i++)
+    for(i = 2; i < numFiles; i++)
     {
 	DEBUG('w', "Current File = %s\n", files[i]->name);
 	if(strcmp(files[i]->name, file) == 0)

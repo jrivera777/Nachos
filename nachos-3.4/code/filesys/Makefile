@@ -629,38 +629,6 @@ filesys.o: ../filesys/filesys.cc ../threads/copyright.h ../machine/disk.h \
   ../threads/utility.h ../filesys/openfile.h ../threads/utility.h \
   ../filesys/directory.h ../filesys/openfile.h ../filesys/filehdr.h \
   ../filesys/filesys.h
-sysopenfile.o: ../filesys/sysopenfile.cc ../filesys/sysopenfile.h \
-  ../filesys/openfile.h ../threads/copyright.h ../threads/utility.h \
-  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
-  ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
-  /usr/include/bits/sys_errlist.h /usr/include/string.h \
-  /usr/include/xlocale.h
-useropenfile.o: ../filesys/useropenfile.cc ../filesys/useropenfile.h
-filemanager.o: ../filesys/filemanager.cc ../filesys/filemanager.h \
-  ../userprog/bitmap.h ../threads/copyright.h ../threads/utility.h \
-  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
-  ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
-  /usr/include/bits/sys_errlist.h /usr/include/string.h \
-  /usr/include/xlocale.h ../filesys/openfile.h ../threads/copyright.h \
-  ../threads/utility.h ../threads/synch.h ../threads/thread.h \
-  ../threads/utility.h ../machine/machine.h ../threads/utility.h \
-  ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
-  ../filesys/filesys.h ../filesys/openfile.h ../userprog/memmanager.h \
-  ../threads/synch.h ../userprog/bitmap.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../filesys/useropenfile.h ../threads/list.h ../filesys/sysopenfile.h
 fstest.o: ../filesys/fstest.cc ../threads/copyright.h \
   ../threads/utility.h ../threads/copyright.h ../threads/bool.h \
   ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \

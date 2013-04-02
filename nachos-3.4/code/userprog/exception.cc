@@ -21,6 +21,7 @@
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
+#include <stdio.h>
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
@@ -28,6 +29,31 @@
 #include "pcb.h"
 #include "filesys.h"
 #include "filemanager.h"
+#include "addrspace.h"
+
+
+
+int userReadWrite(int virtAddr, OpenFile* file, int size, int fileAddr)
+{
+	char buffer[size];
+        int currentSize = file->ReadAt(buffer, size, fileAddr);
+        int readSize = 0, copied=  0;
+        int left = currentSize;
+        int phyAddr;
+
+        while (left > 0) {
+                phyAddr = currentThread->space->Translate(virtAddr);
+
+                ASSERT(phyAddr >= 0 );
+                readSize = min(PageSize,left);
+                bcopy(buffer+copied, &machine->mainMemory[phyAddr],readSize);
+
+                left -= readSize;
+                copied += readSize;
+                virtAddr += readSize;
+        }
+        return currentSize;
+}
 
 //Move PC register to next instruction
 //Update PrevPC and NextPC registers appropriately
@@ -119,6 +145,7 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Open:
 	    {
 		char path[32];
+		
 		printf("System Call: [%d] invoked Open\n", currentThread->space->pcb->GetPID());
 
                 readPath(path,machine->ReadRegister(4)); //get executable path
@@ -139,15 +166,16 @@ ExceptionHandler(ExceptionType which)
 			else
 			{
 			    DEBUG('w', "File \"%s\" now has id %d\n", path, id);
-
 			    SysOpenFile* sfile = new SysOpenFile(id, path, ofile);
+//			    DEBUG('w', "Created new SysOpenFile(%d, %s)\n", id, path);
 			    sfile->count++;
 			    fileManager->files[id] = sfile;
-
+//			    DEBUG('w', "Associated SysOpenFile with fileManager\n");
 			    UserOpenFile* ufile = new UserOpenFile(path, id);
+//			    DEBUG('w', "Made new UserOpenFile\n");
 			    PCB* currPCB = currentThread->space->pcb;
 			    currPCB->files->SortedInsert((void*)ufile, id);
-
+// 			    DEBUG('w', "Added UserOpenFile to currentPCB's list of files\n");
 			    sysfid = id;
 			}
 		    }
@@ -156,12 +184,15 @@ ExceptionHandler(ExceptionType which)
 		{
 		    DEBUG('w', "\"%s\" already exists with id %d.\n", path, sysfid);
 		    fileManager->files[sysfid]->count++;
-		    PCB* currPCB = currentThread->space->pcb;
-		    UserOpenFile* ufile = new UserOpenFile(path, sysfid);
-		    currPCB->files->SortedInsert((void*)ufile, sysfid);
 		    DEBUG('w', "File \"%s\" now has %d process(es) using it.\n", path, fileManager->files[sysfid]->count);
 		}
 
+		int j;
+		for(j = 0; j < MAX_FILES; j++)
+		    if(fileManager->files[j] != NULL)
+			DEBUG('w', "%s\n", fileManager->files[j]->name);
+		
+		DEBUG('w', "Sending fid %d back\n", sysfid);
 		machine->WriteRegister(2, sysfid);
 		
 		break;
@@ -171,7 +202,7 @@ ExceptionHandler(ExceptionType which)
 		printf("System Call: [%d] invoked Close\n", currentThread->space->pcb->GetPID());
 
 		int fid = machine->ReadRegister(4);
-		if(fid >= 2)
+		if(fid >= 0)
 		{
 		    PCB* currPCB = currentThread->space->pcb;
 		    UserOpenFile* ufile = (UserOpenFile*)currPCB->files->Remove(fid);
@@ -186,6 +217,34 @@ ExceptionHandler(ExceptionType which)
 			fileManager->files[fid] = NULL;
 			fileManager->ClearFID(fid);
 		    }
+		}
+		break;
+	    }
+	    case SC_Read:
+            {
+		int size;
+		int buffer;
+		int id, i, phy;
+		OpenFile* f;
+
+		buffer = machine->ReadRegister(4);
+		size = machine->ReadRegister(5);
+		id = machine->ReadRegister(6);
+		phy =  currentThread->space->Translate(buffer);
+		char result[size];
+
+
+		if(id == ConsoleInput)
+		{
+			for(i = 0; i <size + 1; i++)
+			{
+				result[i] = getchar();
+			}
+		}else
+		{
+			UserOpenFile * uof = (UserOpenFile *) currentThread->space->pcb->files->GetElement(id);
+			f = fileManager->files[id]->file;
+			userReadWrite(buffer, f, size, uof->offset);
 		}
 		break;
 	    }

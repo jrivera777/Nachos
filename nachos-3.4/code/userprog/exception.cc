@@ -224,14 +224,14 @@ ExceptionHandler(ExceptionType which)
             {
 		int size;
 		int buffer;
-		int id, i, phy;
+		int id, i, phy,read;
 		OpenFile* f;
 
 		buffer = machine->ReadRegister(4);
 		size = machine->ReadRegister(5);
 		id = machine->ReadRegister(6);
 		phy =  currentThread->space->Translate(buffer);
-		char result[size];
+		char result[size+1];
 
 
 		if(id == ConsoleInput)
@@ -239,13 +239,18 @@ ExceptionHandler(ExceptionType which)
 			for(i = 0; i <size + 1; i++)
 			{
 				result[i] = getchar();
+				read = i;
 			}
+			result[size] = '\0';
+
 		}else
 		{
 			UserOpenFile * uof = (UserOpenFile *) currentThread->space->pcb->files->GetElement(id);
 			f = fileManager->files[id]->file;
-			userReadWrite(buffer, f, size, uof->offset);
+			read = userReadWrite(buffer, f, size, uof->offset);
 		}
+
+		machine->WriteRegister(2, read);
 		break;
 	    }
 	    case SC_Exit:

@@ -119,7 +119,6 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Open:
 	    {
 		char path[32];
-		
 		printf("System Call: [%d] invoked Open\n", currentThread->space->pcb->GetPID());
 
                 readPath(path,machine->ReadRegister(4)); //get executable path
@@ -140,16 +139,15 @@ ExceptionHandler(ExceptionType which)
 			else
 			{
 			    DEBUG('w', "File \"%s\" now has id %d\n", path, id);
+
 			    SysOpenFile* sfile = new SysOpenFile(id, path, ofile);
-//			    DEBUG('w', "Created new SysOpenFile(%d, %s)\n", id, path);
 			    sfile->count++;
 			    fileManager->files[id] = sfile;
-//			    DEBUG('w', "Associated SysOpenFile with fileManager\n");
+
 			    UserOpenFile* ufile = new UserOpenFile(path, id);
-//			    DEBUG('w', "Made new UserOpenFile\n");
 			    PCB* currPCB = currentThread->space->pcb;
 			    currPCB->files->SortedInsert((void*)ufile, id);
-// 			    DEBUG('w', "Added UserOpenFile to currentPCB's list of files\n");
+
 			    sysfid = id;
 			}
 		    }
@@ -158,15 +156,12 @@ ExceptionHandler(ExceptionType which)
 		{
 		    DEBUG('w', "\"%s\" already exists with id %d.\n", path, sysfid);
 		    fileManager->files[sysfid]->count++;
+		    PCB* currPCB = currentThread->space->pcb;
+		    UserOpenFile* ufile = new UserOpenFile(path, sysfid);
+		    currPCB->files->SortedInsert((void*)ufile, sysfid);
 		    DEBUG('w', "File \"%s\" now has %d process(es) using it.\n", path, fileManager->files[sysfid]->count);
 		}
 
-		int j;
-		for(j = 0; j < MAX_FILES; j++)
-		    if(fileManager->files[j] != NULL)
-			DEBUG('w', "%s\n", fileManager->files[j]->name);
-		
-		DEBUG('w', "Sending fid %d back\n", sysfid);
 		machine->WriteRegister(2, sysfid);
 		
 		break;
@@ -176,7 +171,7 @@ ExceptionHandler(ExceptionType which)
 		printf("System Call: [%d] invoked Close\n", currentThread->space->pcb->GetPID());
 
 		int fid = machine->ReadRegister(4);
-		if(fid >= 0)
+		if(fid >= 2)
 		{
 		    PCB* currPCB = currentThread->space->pcb;
 		    UserOpenFile* ufile = (UserOpenFile*)currPCB->files->Remove(fid);

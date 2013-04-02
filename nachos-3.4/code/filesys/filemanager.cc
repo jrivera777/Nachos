@@ -54,11 +54,8 @@ FileManager::GetSysOpenFile(char* file)
     int i;
     int numFiles = MAX_FILES - GetFreeFids();
     for(i = 2; i < numFiles; i++)
-    {
-	DEBUG('w', "Current File = %s\n", files[i]->name);
 	if(strcmp(files[i]->name, file) == 0)
 	    return i;
-    }
     
     return -1;
 }

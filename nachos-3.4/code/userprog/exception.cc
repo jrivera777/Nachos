@@ -91,6 +91,39 @@ readPath(char *path, int cmd)
 	path[pos]=0;
 }
 
+int UserWrite(int virtAddr, char * buffer, int size)
+{
+	int pos = 0,copied =0, left = 0, copy_size;
+	int phyAddr;
+	
+	while ( size > 0 ) {
+		machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+		left = PageSize - (phyAddr) % PageSize;
+		copy_size = min( left, size);
+		bcopy (&machine->mainMemory[phyAddr], buffer + copied, copy_size);
+		size -= copy_size;
+		copied += copy_size;
+		virtAddr += copy_size;
+	}	
+	return copied;
+}
+
+int UserRead(int virtAddr, char * buffer, int size)
+{
+	int pos = 0,copied =0, left = 0, copy_size;
+	int phyAddr;
+	
+	while ( size > 0 ) {
+		machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+		left = PageSize - (phyAddr) % PageSize;
+		copy_size = min( left, size);
+		bcopy ( buffer + copied,&machine->mainMemory[phyAddr], copy_size);
+		size -= copy_size;
+		copied += copy_size;
+		virtAddr += copy_size;
+	}	
+	return copied;
+}
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -220,6 +253,33 @@ ExceptionHandler(ExceptionType which)
 		}
 		break;
 	    }
+	    case SC_Write:
+	    {
+		    int buffer_pointer,size, file_id ;
+		    char *buffer;
+		    int size_writed;
+		    OpenFile* file;
+
+		    buffer_pointer = machine->ReadRegister(4);
+		    size = machine->ReadRegister(5);
+		    file_id = machine->ReadRegister(6);
+
+		    if (file_id == ConsoleOutput) {
+		        buffer = new char[size +1];
+			UserWrite(buffer_pointer, buffer, size);
+			buffer[size] ='\0';
+			printf("%s",buffer);
+		    }else{
+		        buffer = new char[size];
+			size_writed = UserWrite(buffer_pointer, buffer, size);
+			
+			UserOpenFile * uof = (UserOpenFile *) currentThread->space->pcb->files->GetElement(file_id);
+			file = fileManager->files[file_id]->file;
+			
+			file->WriteAt(buffer, size,  uof->offset);
+		    }
+		    break;
+	    }
 	    case SC_Read:
             {
 		int size;
@@ -242,6 +302,7 @@ ExceptionHandler(ExceptionType which)
 				read = i;
 			}
 			result[size] = '\0';
+	//		UserRead(buffer, result, size); I think this is missing
 
 		}else
 		{

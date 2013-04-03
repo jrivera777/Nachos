@@ -4,7 +4,7 @@
 
 SysOpenFile::SysOpenFile(int id, char* fname, OpenFile* f)
 {
-    name = new char[strlen(fname)];
+    name = new char[strlen(fname)+1];
     strcpy(name, fname);    
     file = f;
     fid = id;

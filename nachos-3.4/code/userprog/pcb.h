@@ -18,6 +18,7 @@ class PCB
  public:
     PCB(Thread* t, int id, Thread* par);
     ~PCB();
+
     int GetPID() {return pid;};
     Thread* GetParent() {return parent;};
     Thread* GetThread() {return thrd;};
@@ -28,17 +29,20 @@ class PCB
     void OrphanChildren();
     int GetExitStatus(){return exitStatus;}
     void SetExitStatus(int val){exitStatus = val;}
+    int GetUID();
+    bool ClearUID(int which);
+    int GetFreeUids();
+
     List* children;
     Lock* pcbLock;
     Condition* pcbCond;
     List* files;
-    //UserOpenFile* files[MAX_FILES];
-    //int lastFile;
  private:
     int pid;
     int exitStatus;
     Thread* thrd;
     Thread* parent;
+    BitMap* uids;
 
 };
 #endif

@@ -22,6 +22,7 @@
 // of liability and disclaimer of warranty provisions.
 
 #include <stdio.h>
+#include <string.h>
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
@@ -33,28 +34,39 @@
 
 
 
-int userReadWrite(int virtAddr, OpenFile* file, int size, int fileAddr)
+int UserRead(int virtAddr, char * buffer, int size)
 {
-	char buffer[size];
-        int currentSize = file->ReadAt(buffer, size, fileAddr);
-        int readSize = 0, copied=  0;
-        int left = currentSize;
-        int phyAddr;
+	int pos = 0,copied =0, left = 0, copy_size;
+	int phyAddr;
 
-        while (left > 0) {
-                phyAddr = currentThread->space->Translate(virtAddr);
-
-                ASSERT(phyAddr >= 0 );
-                readSize = min(PageSize,left);
-                bcopy(buffer+copied, &machine->mainMemory[phyAddr],readSize);
-
-                left -= readSize;
-                copied += readSize;
-                virtAddr += readSize;
-        }
-        return currentSize;
+	while ( size > 0 ) {
+		machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+		left = PageSize - (phyAddr) % PageSize;
+		copy_size = min( left, size);
+		bcopy ( buffer + copied,&machine->mainMemory[phyAddr], copy_size);
+		size -= copy_size;
+		copied += copy_size;
+		virtAddr += copy_size;
+	}	
+	return copied;
 }
 
+int UserWrite(int virtAddr, char * buffer, int size)
+{
+	int pos = 0,copied =0, left = 0, copy_size;
+	int phyAddr;
+
+	while ( size > 0 ) {
+		machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+		left = PageSize - (phyAddr) % PageSize;
+		copy_size = min( left, size);
+		bcopy (&machine->mainMemory[phyAddr], buffer + copied, copy_size);
+		size -= copy_size;
+		copied += copy_size;
+		virtAddr += copy_size;
+	}	
+	return copied;
+}
 //Move PC register to next instruction
 //Update PrevPC and NextPC registers appropriately
 void
@@ -88,42 +100,9 @@ readPath(char *path, int cmd)
 		copied++;
 		cmd++;
 	}while(path[pos++] != 0);
-	path[pos]=0;
+	path[pos]='\0';
 }
 
-int UserWrite(int virtAddr, char * buffer, int size)
-{
-	int pos = 0,copied =0, left = 0, copy_size;
-	int phyAddr;
-	
-	while ( size > 0 ) {
-		machine->Translate(virtAddr, &phyAddr, 1,FALSE);
-		left = PageSize - (phyAddr) % PageSize;
-		copy_size = min( left, size);
-		bcopy (&machine->mainMemory[phyAddr], buffer + copied, copy_size);
-		size -= copy_size;
-		copied += copy_size;
-		virtAddr += copy_size;
-	}	
-	return copied;
-}
-
-int UserRead(int virtAddr, char * buffer, int size)
-{
-	int pos = 0,copied =0, left = 0, copy_size;
-	int phyAddr;
-	
-	while ( size > 0 ) {
-		machine->Translate(virtAddr, &phyAddr, 1,FALSE);
-		left = PageSize - (phyAddr) % PageSize;
-		copy_size = min( left, size);
-		bcopy ( buffer + copied,&machine->mainMemory[phyAddr], copy_size);
-		size -= copy_size;
-		copied += copy_size;
-		virtAddr += copy_size;
-	}	
-	return copied;
-}
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -178,140 +157,164 @@ ExceptionHandler(ExceptionType which)
 	    case SC_Open:
 	    {
 		char path[32];
-		
+		int newFileID = -1;
 		printf("System Call: [%d] invoked Open\n", currentThread->space->pcb->GetPID());
 
                 readPath(path,machine->ReadRegister(4)); //get executable path
 		DEBUG('w', "Read File name \"%s\"\n", path);
 		int sysfid = fileManager->GetSysOpenFile(path);
-		DEBUG('w', "Found sysfid = %d\n", sysfid);
+
 		if(sysfid < 0)
 		{
 		    DEBUG('w', "File \"%s\" not in File Table!\n", path);
 		    OpenFile* ofile = fileSystem->Open(path);
 		    if(ofile == NULL)
-			printf("File \"%s\" not found!\n");
+			printf("File \"%s\" not found!\n", path);
 		    else
 		    {
 			int id = fileManager->GetFID();
 			if(id < 0)
-			    printf("Failed to Open file \"%s\". No more files allowed!\n", path);
+			    printf("Failed to Open file \"%s\". No more system files allowed!\n", path);
 			else
 			{
-			    DEBUG('w', "File \"%s\" now has id %d\n", path, id);
+			    PCB* currPCB = currentThread->space->pcb;
+			    DEBUG('w', "File \"%s\" now has sysfid %d\n", path, id);
 			    SysOpenFile* sfile = new SysOpenFile(id, path, ofile);
-//			    DEBUG('w', "Created new SysOpenFile(%d, %s)\n", id, path);
 			    sfile->count++;
 			    fileManager->files[id] = sfile;
-//			    DEBUG('w', "Associated SysOpenFile with fileManager\n");
-			    UserOpenFile* ufile = new UserOpenFile(path, id);
-//			    DEBUG('w', "Made new UserOpenFile\n");
-			    PCB* currPCB = currentThread->space->pcb;
-			    currPCB->files->SortedInsert((void*)ufile, id);
-// 			    DEBUG('w', "Added UserOpenFile to currentPCB's list of files\n");
-			    sysfid = id;
+
+			    int uid = currPCB->GetUID();
+			    if(uid < 0)
+				printf("Failed to Open file \"%s\". No more user files allowed!\n", path);
+			    else
+			    {
+				UserOpenFile* ufile = new UserOpenFile(path, id, uid);
+				DEBUG('w', "File starting offset is %d\n", ufile->offset);
+				DEBUG('w', "File \"%s\" now has uid %d\n", path, uid);
+				currPCB->files->SortedInsert((void*)ufile, uid);
+				newFileID = uid;
+			    }
 			}
 		    }
 		}
 		else
 		{
-		    DEBUG('w', "\"%s\" already exists with id %d.\n", path, sysfid);
-		    fileManager->files[sysfid]->count++;
-		    DEBUG('w', "File \"%s\" now has %d process(es) using it.\n", path, fileManager->files[sysfid]->count);
+		    PCB* currPCB = currentThread->space->pcb;
+		    int uid = currPCB->GetUID();
+		    if(uid < 0)
+			printf("Failed to Open file \"%s\". No more user files allowed!\n", path);
+		    else
+		    {
+			DEBUG('w', "\"%s\" already exists with id %d.\n", path, sysfid);
+			fileManager->files[sysfid]->count++;
+			DEBUG('w', "System file \"%s\" now has %d process(es) using it.\n", path, fileManager->files[sysfid]->count);		    
+			
+			UserOpenFile* ufile = new UserOpenFile(path, sysfid, uid);
+			DEBUG('w', "File starting offset is %d\n", ufile->offset);
+			currPCB->files->SortedInsert((void*)ufile, uid);
+			DEBUG('w', "File \"%s\" now has uid %d\n", path, uid);
+			newFileID = uid;
+		    }
 		}
 
-		int j;
-		for(j = 0; j < MAX_FILES; j++)
-		    if(fileManager->files[j] != NULL)
-			DEBUG('w', "%s\n", fileManager->files[j]->name);
-		
-		DEBUG('w', "Sending fid %d back\n", sysfid);
-		machine->WriteRegister(2, sysfid);
-		
+		machine->WriteRegister(2, newFileID);
 		break;
 	    }
 	    case SC_Close:
 	    {
 		printf("System Call: [%d] invoked Close\n", currentThread->space->pcb->GetPID());
 
-		int fid = machine->ReadRegister(4);
-		if(fid >= 0)
+		int uid = machine->ReadRegister(4);
+		if(uid >= 0)
 		{
 		    PCB* currPCB = currentThread->space->pcb;
-		    UserOpenFile* ufile = (UserOpenFile*)currPCB->files->Remove(fid);
+		    UserOpenFile* ufile = (UserOpenFile*)currPCB->files->Remove(uid);
 		    
-		    DEBUG('w', "Found UserOpenFile to remove with fid = %d\n", fid);
-		    fileManager->files[fid]->count--;
-		    if(fileManager->files[fid]->count > 0)
-			DEBUG('w', "%d process(es) now watching file %d\n", fileManager->files[fid]->count, fid);
+		    DEBUG('w', "Found UserOpenFile to remove with uid = %d\n", uid);
+		    fileManager->files[ufile->index]->count--;
+		    if(fileManager->files[ufile->index]->count > 0)
+			DEBUG('w', "%d process(es) now watching file %d\n", fileManager->files[ufile->index]->count, ufile->index);
 		    else
 		    {
-			DEBUG('w', "No more references to file %d\n", fid);
-			fileManager->files[fid] = NULL;
-			fileManager->ClearFID(fid);
+			DEBUG('w', "No more references to file %d\n", uid);
+			fileManager->files[ufile->index] = NULL;
+			fileManager->ClearFID(ufile->index);
 		    }
 		}
 		break;
 	    }
 	    case SC_Write:
 	    {
-		    int buffer_pointer,size, file_id ;
-		    char *buffer;
-		    int size_writed;
-		    OpenFile* file;
-
-		    buffer_pointer = machine->ReadRegister(4);
-		    size = machine->ReadRegister(5);
-		    file_id = machine->ReadRegister(6);
-
-		    if (file_id == ConsoleOutput) {
-		        buffer = new char[size +1];
-			UserWrite(buffer_pointer, buffer, size);
-			buffer[size] ='\0';
-			printf("%s",buffer);
-		    }else{
-		        buffer = new char[size];
-			size_writed = UserWrite(buffer_pointer, buffer, size);
-			
-			UserOpenFile * uof = (UserOpenFile *) currentThread->space->pcb->files->GetElement(file_id);
-			file = fileManager->files[file_id]->file;
-			
-			file->WriteAt(buffer, size,  uof->offset);
-		    }
-		    break;
+		printf("System Call: [%d] invoked Write\n", currentThread->space->pcb->GetPID());
+		int buffer_pointer,size, file_id ;
+		char *buffer;
+		int size_writed;
+		OpenFile* file;
+		
+		buffer_pointer = machine->ReadRegister(4);
+		size = machine->ReadRegister(5);
+		file_id = machine->ReadRegister(6);
+		
+		if (file_id == ConsoleOutput) {
+		    buffer = new char[size +1];
+		    UserWrite(buffer_pointer, buffer, size);
+		    buffer[size] ='\0';
+		    printf("%s",buffer);
+		}else{
+		    buffer = new char[size];
+		    size_writed = UserWrite(buffer_pointer, buffer, size);
+		    
+		    UserOpenFile * uof = (UserOpenFile *) currentThread->space->pcb->files->GetElement(file_id);
+		    file = fileManager->files[file_id]->file;
+		    
+		    file->WriteAt(buffer, size,  uof->offset);
+		    uof->offset += size_writed;
+		}
+		break;
 	    }
 	    case SC_Read:
             {
+		printf("System Call: [%d] invoked Read\n", currentThread->space->pcb->GetPID());
 		int size;
 		int buffer;
-		int id, i, phy,read;
+		int id, i, read;
 		OpenFile* f;
 
 		buffer = machine->ReadRegister(4);
 		size = machine->ReadRegister(5);
 		id = machine->ReadRegister(6);
-		phy =  currentThread->space->Translate(buffer);
-		char result[size+1];
 
+		char result[size+1];
 
 		if(id == ConsoleInput)
 		{
-			for(i = 0; i <size + 1; i++)
-			{
-				result[i] = getchar();
-				read = i;
-			}
-			result[size] = '\0';
-	//		UserRead(buffer, result, size); I think this is missing
+//		    scanf("%s", result);
+		    for(i = 0; i < size; i++)
+		    {
+			result[i] = getchar();
+			read = i;
+		    }
+		    result[size] = '\0';
+		
+		    DEBUG('w', "Finished reading console input: %s\n", result);
 
 		}else
 		{
 			UserOpenFile * uof = (UserOpenFile *) currentThread->space->pcb->files->GetElement(id);
-			f = fileManager->files[id]->file;
-			read = userReadWrite(buffer, f, size, uof->offset);
-		}
+			DEBUG('w', "About to read %d bytes, starting at offset %d, from file %d\n", size, uof->offset, id);
+			f = fileManager->files[uof->index]->file;
+			read = f->ReadAt(result, size, uof->offset);
+			uof->offset += read;
+			DEBUG('w', "Read %d bytes\n", read);
+			
+			result[size] = '\0';
 
+		}
+		DEBUG('w', "About to call UserRead\n");
+		int bR = UserRead(buffer, result, size);
+		DEBUG('w', "Bytes Read: %d\n", bR);
 		machine->WriteRegister(2, read);
+
 		break;
 	    }
 	    case SC_Exit:

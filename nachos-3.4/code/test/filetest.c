@@ -1,24 +1,21 @@
 #include "syscall.h"
-
 int main()
 {
     int dst, src1, src2;
-    src1 = Open("../test/in.dat");
-    src2 = Open("../test/in.dat");
-    dst = Open("../test/nothing.dat");
-    dst = Open("../test/other.dat");
+    int read;
+    char* buffer = "Hello World\n";
+    Create("out.dat");
+    src1 = Open("out.dat");
     if(src1 < 0)
-    {
-	Close(src1);
-	Close(src2);
-	Close(dst);
-	Exit(100);
-    }
+	Exit(-1);
     else
     {
+	Write(buffer, 11, src1);
+	Write(buffer, 11, src1);
+	Write(buffer, 11, src1);
 	Close(src1);
-	Close(src2);
-	Close(dst);
-	Exit(666);
+	Exit(0);
     }
+
+
 }

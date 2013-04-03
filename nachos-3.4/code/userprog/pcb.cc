@@ -9,7 +9,11 @@ PCB::PCB(Thread* t, int id, Thread* par)
     files = new List();
     pcbLock = new Lock("pcbLock");
     pcbCond = new Condition("pcbCond");
-//    lastFile = 0;
+    uids = new BitMap(MAX_FILES);
+    uids->Mark(0); //stdin and stdout
+    uids->Mark(1);
+//     files->SortedInsert(new UserOpenFile("stdin", 0));
+//     files->SortedInsert(new UserOpenFile("stdout", 1));
 }
 PCB::~PCB()
 {
@@ -17,6 +21,7 @@ PCB::~PCB()
     delete files;
     delete pcbLock;
     delete pcbCond;
+    delete uids;
 }
 bool
 PCB::isChild(int pkey)
@@ -49,4 +54,41 @@ void*
 PCB::GetChild(int pkey)
 {
     return children->GetElement(pkey);
+}
+
+int
+PCB::GetUID()
+{
+    int uid = -1;
+
+    pcbLock->Acquire();
+    uid = uids->Find();
+    pcbLock->Release();
+    
+    return uid;
+}
+
+bool
+PCB::ClearUID(int which)
+{
+    if(uids->NumClear() >= MAX_FILES)
+	return false;
+
+    pcbLock->Acquire();
+    uids->Clear(which);
+    pcbLock->Release();
+
+    return true;
+}
+
+int
+PCB::GetFreeUids()
+{
+    int count = -1;
+
+    pcbLock->Acquire();
+    count = uids->NumClear();
+    pcbLock->Release();
+
+    return count;
 }

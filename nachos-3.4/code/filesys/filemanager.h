@@ -20,9 +20,9 @@ class FileManager
     int GetFreeFids();
     int GetSysOpenFile(char* file);
     SysOpenFile* files[MAX_FILES];
+    Lock*      fidLock;
  private:
     BitMap*    fids;
-    Lock*      fidLock;
 };    
 
 #endif

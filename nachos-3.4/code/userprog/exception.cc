@@ -303,14 +303,15 @@ ExceptionHandler(ExceptionType which)
 			UserOpenFile * uof = (UserOpenFile *) currentThread->space->pcb->files->GetElement(id);
 			DEBUG('w', "About to read %d bytes, starting at offset %d, from file %d\n", size, uof->offset, id);
 			f = fileManager->files[uof->index]->file;
+			fileManager->fidLock->Acquire();
 			read = f->ReadAt(result, size, uof->offset);
+			fileManager->fidLock->Release();
 			uof->offset += read;
 			DEBUG('w', "Read %d bytes\n", read);
 			
 			result[size] = '\0';
 
 		}
-		DEBUG('w', "About to call UserRead\n");
 		int bR = UserRead(buffer, result, size);
 		DEBUG('w', "Bytes Read: %d\n", bR);
 		machine->WriteRegister(2, read);

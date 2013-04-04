@@ -1,0 +1,226 @@
+Dulcardo Arteaga
+Stephen Bromfield
+Joseph Rivera
+
+Project 3
+----------
+
+RUNNING OUR TEST PROGRAMS:
+
+First, please make sure userprog/Makefile has -DCHANGED defined. This
+is needed to make sure all synchronization code works.
+To define this, you can either do so manually, or use the provided 
+python script, replace.py, by calling 
+
+    python replace.py -DCHANGED
+
+from within the userprog directory.
+
+Once done, you can call each test from the userprog directory by doing:
+
+    ./nachos -x ../test/TESTNAME
+
+where TESTNAME is one of the provided tests, or a test of your own,
+properly compiled like the others.
+
+
+We have a simple test called filetest, and the given cp test in our test folder.
+The output of the cp test matches the pdf on the moodle. We also have the 
+concurrentRead test there, and it seems to work well. Our output for the 
+concurrentRead test is:
+
+steve@steve-laptop:~/nachosdir/nachos-3.4/code/userprog$ ./nachos -x ../test/concurrentRead
+Loaded Program: [672] code |  [48] data | [0] bss
+System Call: [1] invoked Fork
+Process [1] Fork: start at address [0xe0] with [14] pages memory
+System Call: [1] invoked Yield
+System Call: [2] invoked Open
+System Call: [2] invoked Read
+System Call: [2] invoked Write
+##########fastRead: System Call: [2] invoked Write
+HeSystem Call: [2] invoked Yield
+System Call: [1] invoked Open
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+HSystem Call: [1] invoked Yield
+System Call: [2] invoked Read
+System Call: [2] invoked Write
+##########fastRead: System Call: [2] invoked Write
+llSystem Call: [2] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+eSystem Call: [1] invoked Yield
+System Call: [2] invoked Read
+System Call: [2] invoked Write
+##########fastRead: System Call: [2] invoked Write
+o System Call: [2] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+lSystem Call: [1] invoked Yield
+System Call: [2] invoked Read
+System Call: [2] invoked Write
+##########fastRead: System Call: [2] invoked Write
+woSystem Call: [2] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+lSystem Call: [1] invoked Yield
+System Call: [2] invoked Read
+System Call: [2] invoked Write
+##########fastRead: System Call: [2] invoked Write
+rlSystem Call: [2] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+oSystem Call: [1] invoked Yield
+System Call: [2] invoked Read
+System Call: [2] invoked Write
+##########fastRead: System Call: [2] invoked Write
+d!System Call: [2] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+ System Call: [1] invoked Yield
+System Call: [2] invoked Read
+System Call: [2] invoked Write
+##########fastRead: System Call: [2] invoked Write
+
+System Call: [2] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+wSystem Call: [1] invoked Yield
+System Call: [2] invoked Read
+System Call: [2] invoked Close
+System Call: [2] invoked Exit
+Process [2] exited with status [13]
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+oSystem Call: [1] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+rSystem Call: [1] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+lSystem Call: [1] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+dSystem Call: [1] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+!System Call: [1] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Write
+slowRead: System Call: [1] invoked Write
+
+System Call: [1] invoked Yield
+System Call: [1] invoked Read
+System Call: [1] invoked Close
+System Call: [1] invoked Yield
+System Call: [1] invoked Exit
+Process [1] exited with status [13]
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 3136, idle 0, system 2130, user 1006
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...
+
+
+===============================================================================
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+===============================================================================
+
+------------
+New Classes:
+------------
+
+filesys/FileManager: Responsible for dispensing unique ids to newly created 
+SysOpenFile Objects, as well as keeping track of all SysOpenFiles that currently
+exist in the system. An array of arbitrary length (50) is used for this.  
+A Lock is also provided for synchronization purposes. A BitMap is used
+to easily deal with free and used ids. The ids are used as indices into the array.
+
+filesys/SysOpenFile:  Designed as described in project description.
+Each SysOpenFile has a unique id, a count of the number of processes using it, 
+the name of the file in the file system, and a pointer to the appropriate 
+OpenFile object.
+
+filesys/UserOpenFile: Designed as described in the project description. Each 
+UserOpenFile has a unique id, index into the SysOpenFile table (the array in the
+FileManager), the file name, and an offset, which represents the next byte to 
+be read. The index is basically one of the SysOpenFile ids, which are in turn 
+the indice into the array in the FileManager.
+
+
+----------------
+Modified Classes
+----------------
+
+userprog/PCB: We've added a BitMap to facilitate the dispensing of unique ids 
+to newly created UserOpenFiles. The PCB now also has a List of UserOpenFiles.
+When a process calls the Open syscall, a new UserOpenFile is created and added
+to this list. From this, a process has access to all currently used files, and
+their respective read positions.
+
+userprog/exception.cc:
+
+We added cases for the five new system calls here.
+
+Our strategy was simply to follow the given directions.
+
+Create: We read the path name from register 4, and call the fileSystem Create function.
+
+Open: We first read the path name, and then search in the SysOpenFile table
+      (in the FileManager) for an existing SysOpenFile.  If it exists, we 
+      increase its count and create a new UserOpenFile, which we add to the 
+      current PCB's list of files. If no SysOpenFile was found, we call the
+      fileSystem Open function. If that is successful, we create a new 
+      SysOpenFile object, add it to the fileManager's SysOpenFile table, and 
+      finally create a UserOpenFile, and add it to the current PCB. Finally, 
+      we write the newly created UserOpenFile id into register 2.
+
+Close: We first read the file id from register 4. If the id is valid 
+       (greater than 2, as they cannot close stdin or stdout), we search the
+       current PCB for a matching UserOpenFile.  If one is found, it is removed
+       from the PCB's list of files, it's id is freed, and we use it's index
+       to find the appropriate SysOpenFile in the FileManager and decrement 
+       its process count.  If the count is equal to 0, we remove the 
+       SysOpenFile from the FileManager and free up it's id.
+
+Write: First, we read the buffer pointer, number of bytes to write, and 
+       file id from registers 4, 5, and 6. If the id is stdout, we simply copy
+       what is in the buffer to stdin a page at a time. If the id is from a 
+       valid file (and not stdin), we copy the data in the given buffer into
+       file using the OpenFile->WriteAt function.
+
+Read:  First, we read the buffer pointer, number of bytes to read, and 
+       file id from registers 4, 5, and 6. Then we attempt to read from the 
+       given file id. If the id is stdout, we do nothing. If it is stdin, we
+       read character by character into the buffer until we reach the
+       specified size. If it's from a file, we attempt to find the appropriate
+       UserOpenFile, and if it exists, we then use its index to get the
+       SysOpenFile. We read the necessary number of bytes (this is 
+       synchronized by a Lock), and then update the UserOpenFile offset.
+
+
+This project was easier than the last. As before, we discussed our plans 
+together after reading the requirements.  We set up the SysOpenFile, 
+UserOpenFile, and FileManager class together. Joseph wrote the Create, 
+Open, and Close syscalls. Dulcardo wrote the Write syscall, and Stephen
+wrote the Read syscall. Afterward, we all review each other's code and made
+necessary corrections.
+

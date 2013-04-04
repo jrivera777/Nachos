@@ -17,7 +17,6 @@ public:
     bool ClearPID(int which);
     int GetFreePids();
     void* RemovePCB(int pkey);
-    UserOpenFile* GetUserFile(int pid, char* fname);
     List* pcbs;
 private:
     PCBManager();

@@ -8,13 +8,13 @@ Project 3
 RUNNING OUR TEST PROGRAMS:
 
 First, please make sure userprog/Makefile has -DCHANGED defined. This
-is needed to make sure all synchronization code works.
-To define this, you can either do so manually, or use the provided 
-python script, replace.py, by calling 
+is needed to make sure all synchronization code works. We have done 
+so already, but another check couldn't hurt.
 
-    python replace.py -DCHANGED
-
-from within the userprog directory.
+Please also make sure that the CC and LD variables in Makefile.common 
+are equal to g++, as we change them to g++-3.4 for the VM environments
+we develop in.  At the time of writing this, we are pretty sure we
+changed them back, but it couldn't hurt to check! 
 
 Once done, you can call each test from the userprog directory by doing:
 
@@ -22,7 +22,6 @@ Once done, you can call each test from the userprog directory by doing:
 
 where TESTNAME is one of the provided tests, or a test of your own,
 properly compiled like the others.
-
 
 We have a simple test called filetest, and the given cp test in our test folder.
 The output of the cp test matches the pdf on the moodle. We also have the 

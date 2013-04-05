@@ -13,7 +13,7 @@ for line in f:
             s+= " " + i
         s += "\n"
 	#comment out the line below if not on nachos.cs.fiu.edu
-        s += "INCPATH = -I../threads -I../machine\n"
+        s += "INCPATH = -I../bin -I../filesys -I../userprog -I../threads -I../machine\n"
     else:
         s += line
 

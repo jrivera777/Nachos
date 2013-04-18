@@ -138,7 +138,7 @@ ExceptionHandler(ExceptionType which)
 	int badVAddr = machine->ReadRegister(BadVAddrReg);
 	DEBUG('p', "Page Fault occurred at VA=0x%x\n", badVAddr);
     }
-    if(which == SyscallException)
+    else if(which == SyscallException)
     {
 	switch(type)
 	{

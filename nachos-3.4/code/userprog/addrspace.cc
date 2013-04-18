@@ -118,36 +118,58 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     strcat(swap,"swap.");
     strcat(swap, swid);
     fileSystem->Create(swap, 0);
-
+    DEBUG('p', "Created swapfile = %s\n", swap);
     // first, set up the translation 
     for (i = 0; i < numPages; i++) 
     {
 	pageTable[i].virtualPage = i;
 //	pageTable[i].physicalPage = manager->GetPage();
 //	bzero(machine->mainMemory + pageTable[i].physicalPage * PageSize, PageSize);
-	pageTable[i].valid = TRUE;
+	pageTable[i].valid = FALSE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
 	pageTable[i].readOnly = FALSE; 
+	pageTable[i].inMemory = FALSE; 
     }
 
+
+
+    //CONSERVATIVE VERSION = Write entire executable into swap file!
+    OpenFile* swapFile = fileSystem->Open(swap);
+    char buffer[size];
+    int wrote;
+    DEBUG('p', "About to read %d bytes from executable into swap\n", size);
+    if(noffH.code.size > 0)
+    {
+	executable->ReadAt(buffer, noffH.code.size, noffH.code.inFileAddr);
+    }
+    if(noffH.initData.size > 0)
+    {
+	executable->ReadAt(buffer, noffH.initData.size, noffH.initData.inFileAddr);
+    }
+
+    DEBUG('p', "About to write %d bytes into swapfile %s\n", size, swap);
+    wrote = swapFile->WriteAt(buffer, size, 0);
+    DEBUG('p', "Wrote %d bytes into swapfile %s\n", wrote, swap);
+
+
     // then, copy in the code and data segments into memory
-    if (noffH.code.size > 0) 
-    {
-        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
-			noffH.code.virtualAddr, noffH.code.size);
-	ReadFile(noffH.code.virtualAddr, executable, noffH.code.size,
-			noffH.code.inFileAddr);
-    }
-    if (noffH.initData.size > 0) 
-    {
-        DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
-			noffH.initData.virtualAddr, noffH.initData.size);
-	ReadFile(noffH.initData.virtualAddr, executable, noffH.initData.size,
-			noffH.initData.inFileAddr);
-//        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-//			noffH.initData.size, noffH.initData.inFileAddr);
-    }
+//     if (noffH.code.size > 0) 
+//     {
+//         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
+// 			noffH.code.virtualAddr, noffH.code.size);
+// 	ReadFile(noffH.code.virtualAddr, executable, noffH.code.size,
+// 		 noffH.code.inFileAddr);
+//     }
+//     if (noffH.initData.size > 0) 
+//     {
+//         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
+// 			noffH.initData.virtualAddr, noffH.initData.size);
+// 	ReadFile(noffH.initData.virtualAddr, executable, noffH.initData.size,
+// 			noffH.initData.inFileAddr);
+// //        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
+// //			noffH.initData.size, noffH.initData.inFileAddr);
+//     }
     printf("Loaded Program: [%d] code |  [%d] data | [%d] bss\n", codeSize, 
 	   initDataSize, uninitDataSize);
 }
@@ -292,24 +314,25 @@ AddrSpace::Fork()
 int 
 AddrSpace::ReadFile(int virtAddr, OpenFile* file, int size, int fileAddr)
 {
-	char buffer[size]; 
-	int currentSize = file->ReadAt(buffer, size, fileAddr);
-	int readSize = 0, copied=  0;
-	int left = currentSize;
-	int phyAddr;
-
-	while (left > 0) {
-		phyAddr = Translate(virtAddr);
+    char buffer[size]; 
+    int currentSize = file->ReadAt(buffer, size, fileAddr);
+    int readSize = 0, copied=  0;
+    int left = currentSize;
+    int phyAddr;
+    
+    while (left > 0) 
+    {
+	phyAddr = Translate(virtAddr);
 	
-		ASSERT(phyAddr >= 0 );
-		readSize = min(PageSize,left);
-		bcopy(buffer+copied, &machine->mainMemory[phyAddr],readSize);
-
-		left -= readSize;
-		copied += readSize;
-		virtAddr += readSize;
-	}
-	return currentSize;
+	ASSERT(phyAddr >= 0 );
+	readSize = min(PageSize,left);
+	bcopy(buffer+copied, &machine->mainMemory[phyAddr],readSize);
+	
+	left -= readSize;
+	copied += readSize;
+	virtAddr += readSize;
+    }
+    return currentSize;
 }
 
 void

@@ -43,6 +43,7 @@ class AddrSpace {
 		 int size,
 		 int fileAddr);
     PCB* pcb;
+    char swap[10];
     int codeSize;
     int initDataSize;
     int uninitDataSize;

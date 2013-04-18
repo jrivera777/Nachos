@@ -20,6 +20,7 @@
 #include "addrspace.h"
 #include "pcbmanager.h"
 #include "noff.h"
+#include <string.h>
 
 class PCB;
 
@@ -90,12 +91,12 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
 
     if(replace)
 	    parent->space->FreePages();
-    if(numPages > manager->GetFreePages())
-    {
-	    printf("Not enough memory.\n");
-	    numPages = 0;
-	    return;
-    }
+//     if(numPages > manager->GetFreePages())
+//     {
+// 	    printf("Not enough memory.\n");
+// 	    numPages = 0;
+// 	    return;
+//     }
 
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					 manager->GetFreePages(), size);
@@ -111,11 +112,19 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     pcbman->pcbs->SortedInsert((void*)pcb, pcb->GetPID()); //keep track of new pcb
     pageTable = new TranslationEntry[numPages];
 
+    //set up swap file name
+    char swid[5];
+    sprintf(swid, "%d", pcb->GetPID());
+    strcat(swap,"swap.");
+    strcat(swap, swid);
+    fileSystem->Create(swap, 0);
+
     // first, set up the translation 
-    for (i = 0; i < numPages; i++) {
+    for (i = 0; i < numPages; i++) 
+    {
 	pageTable[i].virtualPage = i;
-	pageTable[i].physicalPage = manager->GetPage();
-	bzero(machine->mainMemory + pageTable[i].physicalPage * PageSize, PageSize);
+//	pageTable[i].physicalPage = manager->GetPage();
+//	bzero(machine->mainMemory + pageTable[i].physicalPage * PageSize, PageSize);
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;

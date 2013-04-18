@@ -2,9 +2,20 @@
 #define MEMMANAGER_H
 
 class Lock;
+class AddrSpace;
 
 #include "synch.h"
 #include "bitmap.h"
+#include "addrspace.h"
+
+class CoreMapEntry
+{
+ public:
+    bool allocated;
+    AddrSpace* space;
+    int vPageNumber;
+    bool ioLocked;
+};
 
 class MemManager
 {
@@ -14,6 +25,8 @@ class MemManager
     int GetPage();
     bool ClearPage(int which);
     int GetFreePages();
+    CoreMapEntry* entries;
+    int replaceIndex;
  private:
     MemManager(int numPages);
     BitMap* pages;

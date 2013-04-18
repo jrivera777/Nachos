@@ -46,12 +46,12 @@ main.o: ../threads/main.cc ../threads/copyright.h ../threads/utility.h \
   ../filesys/filesys.h ../threads/copyright.h ../filesys/openfile.h \
   ../threads/utility.h ../userprog/memmanager.h ../threads/synch.h \
   ../threads/list.h ../userprog/bitmap.h ../threads/utility.h \
-  ../filesys/openfile.h ../userprog/pcb.h ../threads/thread.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
-  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
-  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
-  ../filesys/filemanager.h
+  ../filesys/openfile.h ../userprog/addrspace.h ../userprog/pcb.h \
+  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
+  ../threads/list.h ../machine/stats.h ../machine/timer.h \
+  ../filesys/filesys.h ../filesys/filemanager.h
 list.o: ../threads/list.cc ../threads/copyright.h ../threads/list.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
@@ -79,12 +79,12 @@ scheduler.o: ../threads/scheduler.cc ../threads/copyright.h \
   ../userprog/addrspace.h ../threads/copyright.h ../filesys/filesys.h \
   ../threads/copyright.h ../filesys/openfile.h ../threads/utility.h \
   ../userprog/memmanager.h ../threads/synch.h ../userprog/bitmap.h \
-  ../threads/utility.h ../filesys/openfile.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
-  ../filesys/useropenfile.h ../threads/system.h ../machine/interrupt.h \
-  ../threads/list.h ../machine/stats.h ../machine/timer.h \
-  ../filesys/filesys.h ../filesys/filemanager.h
+  ../threads/utility.h ../filesys/openfile.h ../userprog/addrspace.h \
+  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
+  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
+  ../filesys/sysopenfile.h ../filesys/useropenfile.h ../threads/system.h \
+  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
+  ../machine/timer.h ../filesys/filesys.h ../filesys/filemanager.h
 synch.o: ../threads/synch.cc ../threads/copyright.h ../threads/synch.h \
   ../threads/thread.h ../threads/utility.h ../threads/bool.h \
   ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
@@ -101,12 +101,13 @@ synch.o: ../threads/synch.cc ../threads/copyright.h ../threads/synch.h \
   ../threads/copyright.h ../filesys/filesys.h ../threads/copyright.h \
   ../filesys/openfile.h ../threads/utility.h ../userprog/memmanager.h \
   ../threads/synch.h ../userprog/bitmap.h ../threads/utility.h \
-  ../filesys/openfile.h ../userprog/pcb.h ../threads/thread.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
-  ../threads/list.h ../threads/system.h ../threads/scheduler.h \
-  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
-  ../machine/timer.h ../filesys/filesys.h ../filesys/filemanager.h
+  ../filesys/openfile.h ../userprog/addrspace.h ../userprog/pcb.h \
+  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h ../threads/list.h ../threads/system.h \
+  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
+  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
+  ../filesys/filemanager.h
 synchlist.o: ../threads/synchlist.cc ../threads/copyright.h \
   ../threads/synchlist.h ../threads/list.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
@@ -124,9 +125,9 @@ synchlist.o: ../threads/synchlist.cc ../threads/copyright.h \
   ../filesys/filesys.h ../threads/copyright.h ../filesys/openfile.h \
   ../threads/utility.h ../userprog/memmanager.h ../threads/synch.h \
   ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h \
-  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
-  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
-  ../filesys/sysopenfile.h ../filesys/useropenfile.h
+  ../userprog/addrspace.h ../userprog/pcb.h ../threads/thread.h \
+  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
+  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h
 system.o: ../threads/system.cc ../threads/copyright.h ../threads/system.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
@@ -143,9 +144,9 @@ system.o: ../threads/system.cc ../threads/copyright.h ../threads/system.h \
   ../threads/copyright.h ../filesys/openfile.h ../threads/utility.h \
   ../userprog/memmanager.h ../threads/synch.h ../threads/list.h \
   ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h \
-  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
-  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
-  ../filesys/sysopenfile.h ../filesys/useropenfile.h \
+  ../userprog/addrspace.h ../userprog/pcb.h ../threads/thread.h \
+  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
+  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
   ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
   ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
   ../filesys/filemanager.h
@@ -164,13 +165,13 @@ thread.o: ../threads/thread.cc ../threads/copyright.h ../threads/thread.h \
   ../threads/copyright.h ../filesys/filesys.h ../threads/copyright.h \
   ../filesys/openfile.h ../threads/utility.h ../userprog/memmanager.h \
   ../threads/synch.h ../threads/list.h ../userprog/bitmap.h \
-  ../threads/utility.h ../filesys/openfile.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
-  ../filesys/useropenfile.h ../threads/switch.h ../threads/synch.h \
-  ../threads/system.h ../threads/scheduler.h ../machine/interrupt.h \
-  ../threads/list.h ../machine/stats.h ../machine/timer.h \
-  ../filesys/filesys.h ../filesys/filemanager.h
+  ../threads/utility.h ../filesys/openfile.h ../userprog/addrspace.h \
+  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
+  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
+  ../filesys/sysopenfile.h ../filesys/useropenfile.h ../threads/switch.h \
+  ../threads/synch.h ../threads/system.h ../threads/scheduler.h \
+  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
+  ../machine/timer.h ../filesys/filesys.h ../filesys/filemanager.h
 utility.o: ../threads/utility.cc ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
@@ -199,9 +200,9 @@ threadtest.o: ../threads/threadtest.cc ../threads/copyright.h \
   ../threads/copyright.h ../filesys/openfile.h ../threads/utility.h \
   ../userprog/memmanager.h ../threads/synch.h ../threads/list.h \
   ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h \
-  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
-  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
-  ../filesys/sysopenfile.h ../filesys/useropenfile.h \
+  ../userprog/addrspace.h ../userprog/pcb.h ../threads/thread.h \
+  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
+  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
   ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
   ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
   ../filesys/filemanager.h ../threads/synch.h
@@ -222,11 +223,12 @@ interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../filesys/filesys.h ../threads/copyright.h ../filesys/openfile.h \
   ../threads/utility.h ../userprog/memmanager.h ../threads/synch.h \
   ../threads/list.h ../userprog/bitmap.h ../threads/utility.h \
-  ../filesys/openfile.h ../userprog/pcb.h ../threads/thread.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
-  ../threads/scheduler.h ../machine/interrupt.h ../machine/stats.h \
-  ../machine/timer.h ../filesys/filesys.h ../filesys/filemanager.h
+  ../filesys/openfile.h ../userprog/addrspace.h ../userprog/pcb.h \
+  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
+  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
+  ../filesys/filemanager.h
 sysdep.o: ../machine/sysdep.cc ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
   /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
@@ -269,9 +271,9 @@ sysdep.o: ../machine/sysdep.cc ../threads/copyright.h \
   ../threads/copyright.h ../filesys/openfile.h ../threads/utility.h \
   ../userprog/memmanager.h ../threads/synch.h ../threads/list.h \
   ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h \
-  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
-  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
-  ../filesys/sysopenfile.h ../filesys/useropenfile.h \
+  ../userprog/addrspace.h ../userprog/pcb.h ../threads/thread.h \
+  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
+  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
   ../threads/scheduler.h ../machine/interrupt.h ../machine/stats.h \
   ../machine/timer.h ../filesys/filesys.h ../filesys/filemanager.h
 stats.o: ../machine/stats.cc ../threads/copyright.h ../threads/utility.h \
@@ -301,12 +303,12 @@ timer.o: ../machine/timer.cc ../threads/copyright.h ../machine/timer.h \
   ../filesys/filesys.h ../threads/copyright.h ../filesys/openfile.h \
   ../threads/utility.h ../userprog/memmanager.h ../threads/synch.h \
   ../threads/list.h ../userprog/bitmap.h ../threads/utility.h \
-  ../filesys/openfile.h ../userprog/pcb.h ../threads/thread.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
-  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
-  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
-  ../filesys/filemanager.h
+  ../filesys/openfile.h ../userprog/addrspace.h ../userprog/pcb.h \
+  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
+  ../threads/list.h ../machine/stats.h ../machine/timer.h \
+  ../filesys/filesys.h ../filesys/filemanager.h
 addrspace.o: ../userprog/addrspace.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
@@ -323,13 +325,13 @@ addrspace.o: ../userprog/addrspace.cc ../threads/copyright.h \
   ../userprog/addrspace.h ../filesys/filesys.h ../threads/copyright.h \
   ../filesys/openfile.h ../threads/utility.h ../userprog/memmanager.h \
   ../threads/synch.h ../threads/list.h ../userprog/bitmap.h \
-  ../threads/utility.h ../filesys/openfile.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
-  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
-  ../threads/list.h ../machine/stats.h ../machine/timer.h \
-  ../filesys/filesys.h ../filesys/filemanager.h ../userprog/addrspace.h \
-  ../userprog/pcbmanager.h ../bin/noff.h
+  ../threads/utility.h ../filesys/openfile.h ../userprog/addrspace.h \
+  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
+  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
+  ../filesys/sysopenfile.h ../filesys/useropenfile.h \
+  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
+  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
+  ../filesys/filemanager.h ../userprog/pcbmanager.h ../bin/noff.h
 bitmap.o: ../userprog/bitmap.cc ../threads/copyright.h \
   ../userprog/bitmap.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
@@ -361,7 +363,8 @@ memmanager.o: ../userprog/memmanager.cc ../userprog/memmanager.h \
   ../threads/thread.h ../userprog/bitmap.h ../threads/utility.h \
   ../filesys/openfile.h ../threads/list.h ../filesys/filemanager.h \
   ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
-  ../filesys/useropenfile.h ../threads/list.h ../machine/machine.h
+  ../filesys/useropenfile.h ../threads/list.h ../userprog/addrspace.h \
+  ../machine/machine.h
 pcb.o: ../userprog/pcb.cc ../userprog/pcb.h ../threads/thread.h \
   ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
   ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
@@ -379,8 +382,9 @@ pcb.o: ../userprog/pcb.cc ../userprog/pcb.h ../threads/thread.h \
   ../filesys/openfile.h ../threads/utility.h ../userprog/memmanager.h \
   ../threads/synch.h ../threads/thread.h ../threads/list.h \
   ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h
+  ../userprog/addrspace.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h
 pcbmanager.o: ../userprog/pcbmanager.cc /usr/include/string.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
   /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
@@ -397,10 +401,10 @@ pcbmanager.o: ../userprog/pcbmanager.cc /usr/include/string.h \
   ../machine/disk.h ../userprog/addrspace.h ../threads/copyright.h \
   ../filesys/filesys.h ../threads/copyright.h ../filesys/openfile.h \
   ../threads/utility.h ../userprog/memmanager.h ../userprog/bitmap.h \
-  ../threads/utility.h ../filesys/openfile.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
-  ../filesys/useropenfile.h ../threads/list.h
+  ../threads/utility.h ../filesys/openfile.h ../userprog/addrspace.h \
+  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
+  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
+  ../filesys/sysopenfile.h ../filesys/useropenfile.h ../threads/list.h
 exception.o: ../userprog/exception.cc /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
   /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
@@ -418,13 +422,12 @@ exception.o: ../userprog/exception.cc /usr/include/stdio.h \
   ../threads/copyright.h ../filesys/openfile.h ../threads/utility.h \
   ../userprog/memmanager.h ../threads/synch.h ../threads/list.h \
   ../userprog/bitmap.h ../threads/utility.h ../filesys/openfile.h \
-  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
-  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
-  ../filesys/sysopenfile.h ../filesys/useropenfile.h \
+  ../userprog/addrspace.h ../userprog/pcb.h ../threads/thread.h \
+  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
+  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
   ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
   ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
-  ../filesys/filemanager.h ../userprog/syscall.h ../userprog/pcbmanager.h \
-  ../userprog/addrspace.h
+  ../filesys/filemanager.h ../userprog/syscall.h ../userprog/pcbmanager.h
 progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
@@ -441,13 +444,13 @@ progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
   ../userprog/addrspace.h ../filesys/filesys.h ../threads/copyright.h \
   ../filesys/openfile.h ../threads/utility.h ../userprog/memmanager.h \
   ../threads/synch.h ../threads/list.h ../userprog/bitmap.h \
-  ../threads/utility.h ../filesys/openfile.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
-  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
-  ../threads/list.h ../machine/stats.h ../machine/timer.h \
-  ../filesys/filesys.h ../filesys/filemanager.h ../machine/console.h \
-  ../userprog/addrspace.h
+  ../threads/utility.h ../filesys/openfile.h ../userprog/addrspace.h \
+  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
+  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
+  ../filesys/sysopenfile.h ../filesys/useropenfile.h \
+  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
+  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
+  ../filesys/filemanager.h ../machine/console.h
 sysopenfile.o: ../filesys/sysopenfile.cc ../filesys/sysopenfile.h \
   ../filesys/openfile.h ../threads/copyright.h ../threads/utility.h \
   ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
@@ -482,9 +485,10 @@ filemanager.o: ../filesys/filemanager.cc ../filesys/filemanager.h \
   ../threads/utility.h ../machine/machine.h ../threads/utility.h \
   ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
   ../filesys/filesys.h ../filesys/openfile.h ../userprog/memmanager.h \
-  ../threads/synch.h ../userprog/bitmap.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../filesys/useropenfile.h ../threads/list.h ../filesys/sysopenfile.h
+  ../threads/synch.h ../userprog/bitmap.h ../userprog/addrspace.h \
+  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
+  ../filesys/filemanager.h ../filesys/useropenfile.h ../threads/list.h \
+  ../filesys/sysopenfile.h
 console.o: ../machine/console.cc ../threads/copyright.h \
   ../machine/console.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
@@ -502,12 +506,12 @@ console.o: ../machine/console.cc ../threads/copyright.h \
   ../filesys/filesys.h ../threads/copyright.h ../filesys/openfile.h \
   ../threads/utility.h ../userprog/memmanager.h ../threads/synch.h \
   ../threads/list.h ../userprog/bitmap.h ../threads/utility.h \
-  ../filesys/openfile.h ../userprog/pcb.h ../threads/thread.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
-  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
-  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
-  ../filesys/filemanager.h
+  ../filesys/openfile.h ../userprog/addrspace.h ../userprog/pcb.h \
+  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
+  ../threads/list.h ../machine/stats.h ../machine/timer.h \
+  ../filesys/filesys.h ../filesys/filemanager.h
 machine.o: ../machine/machine.cc ../threads/copyright.h \
   ../machine/machine.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
@@ -525,12 +529,12 @@ machine.o: ../machine/machine.cc ../threads/copyright.h \
   ../filesys/filesys.h ../threads/copyright.h ../filesys/openfile.h \
   ../threads/utility.h ../userprog/memmanager.h ../threads/synch.h \
   ../threads/list.h ../userprog/bitmap.h ../threads/utility.h \
-  ../filesys/openfile.h ../userprog/pcb.h ../threads/thread.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
-  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
-  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
-  ../filesys/filemanager.h
+  ../filesys/openfile.h ../userprog/addrspace.h ../userprog/pcb.h \
+  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
+  ../threads/list.h ../machine/stats.h ../machine/timer.h \
+  ../filesys/filesys.h ../filesys/filemanager.h
 mipssim.o: ../machine/mipssim.cc ../threads/copyright.h \
   ../machine/machine.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
@@ -548,12 +552,13 @@ mipssim.o: ../machine/mipssim.cc ../threads/copyright.h \
   ../threads/copyright.h ../filesys/filesys.h ../threads/copyright.h \
   ../filesys/openfile.h ../threads/utility.h ../userprog/memmanager.h \
   ../threads/synch.h ../threads/list.h ../userprog/bitmap.h \
-  ../threads/utility.h ../filesys/openfile.h ../userprog/pcb.h \
-  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
-  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
-  ../filesys/useropenfile.h ../threads/scheduler.h ../machine/interrupt.h \
-  ../threads/list.h ../machine/stats.h ../machine/timer.h \
-  ../filesys/filesys.h ../filesys/filemanager.h
+  ../threads/utility.h ../filesys/openfile.h ../userprog/addrspace.h \
+  ../userprog/pcb.h ../threads/thread.h ../threads/list.h \
+  ../filesys/filemanager.h ../userprog/bitmap.h ../threads/synch.h \
+  ../filesys/sysopenfile.h ../filesys/useropenfile.h \
+  ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
+  ../machine/stats.h ../machine/timer.h ../filesys/filesys.h \
+  ../filesys/filemanager.h
 translate.o: ../machine/translate.cc ../threads/copyright.h \
   ../machine/machine.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
@@ -571,12 +576,12 @@ translate.o: ../machine/translate.cc ../threads/copyright.h \
   ../userprog/memmanager.h ../threads/synch.h ../threads/thread.h \
   ../threads/utility.h ../machine/machine.h ../userprog/addrspace.h \
   ../threads/list.h ../userprog/bitmap.h ../threads/utility.h \
-  ../filesys/openfile.h ../userprog/pcb.h ../threads/thread.h \
-  ../threads/list.h ../filesys/filemanager.h ../userprog/bitmap.h \
-  ../threads/synch.h ../filesys/sysopenfile.h ../filesys/useropenfile.h \
-  ../threads/system.h ../threads/scheduler.h ../machine/interrupt.h \
-  ../threads/list.h ../machine/stats.h ../machine/timer.h \
-  ../filesys/filesys.h ../filesys/filemanager.h
+  ../filesys/openfile.h ../userprog/addrspace.h ../userprog/pcb.h \
+  ../threads/thread.h ../threads/list.h ../filesys/filemanager.h \
+  ../userprog/bitmap.h ../threads/synch.h ../filesys/sysopenfile.h \
+  ../filesys/useropenfile.h ../threads/system.h ../threads/scheduler.h \
+  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
+  ../machine/timer.h ../filesys/filesys.h ../filesys/filemanager.h
 # DEPENDENCIES MUST END AT END OF FILE
 # IF YOU PUT STUFF HERE IT WILL GO AWAY
 # see make depend above

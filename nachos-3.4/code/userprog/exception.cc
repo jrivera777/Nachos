@@ -133,6 +133,11 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
 
+    if(which == PageFaultException)
+    {
+	int badVAddr = machine->ReadRegister(BadVAddrReg);
+	DEBUG('p', "Page Fault occurred at VA=0x%x\n", badVAddr);
+    }
     if(which == SyscallException)
     {
 	switch(type)

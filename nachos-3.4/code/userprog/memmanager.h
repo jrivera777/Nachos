@@ -27,12 +27,12 @@ class MemManager
     int GetFreePages();
     CoreMapEntry* entries;
     int replaceIndex;
+    int totalPages;
  private:
     MemManager(int numPages);
     BitMap* pages;
     int usedPages;
     Lock* mmLock;
-    int totalPages;
     static MemManager* manager;
 };
 

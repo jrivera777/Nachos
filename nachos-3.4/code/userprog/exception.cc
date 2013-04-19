@@ -33,7 +33,6 @@
 #include "addrspace.h"
 
 
-
 int UserRead(int virtAddr, char * buffer, int size)
 {
 	int pos = 0,copied =0, left = 0, copy_size;
@@ -142,31 +141,67 @@ ExceptionHandler(ExceptionType which)
 	int badVAddr = machine->ReadRegister(BadVAddrReg);
 	DEBUG('p', "Page Fault occurred at VA=0x%x\n", badVAddr);
 	int frameId = manager->GetPage();
+	int vpn = badVAddr/PageSize;
+
+	OpenFile* swap = fileSystem->Open(currentThread->space->swap);
+
 	if(frameId >= 0)
 	{
 	    DEBUG('p', "Free frame %d found\n", frameId);
-	    OpenFile* swap = fileSystem->Open(currentThread->space->swap);
-	    int start = frameId * PageSize;
-	    int read = swap->ReadAt(swapBuffer, PageSize, start);
+
+	    int start = vpn * PageSize;
+	    int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
+
 	    DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
-	    DEBUG('p', "VPN = %d\n", badVAddr/PageSize);
-	    currentThread->space->pageTable[badVAddr/PageSize].valid = true;
-	    currentThread->space->pageTable[badVAddr/PageSize].physicalPage = frameId;
-	    bzero(machine->mainMemory + currentThread->space->pageTable[frameId].physicalPage * PageSize, PageSize);
-	    manager->entries[frameId].vPageNumber = currentThread->space->pageTable[badVAddr/PageSize].virtualPage;
+	    DEBUG('p', "VPN = %d\n", vpn);
+	    currentThread->space->pageTable[vpn].valid = true;
+	    currentThread->space->pageTable[vpn].physicalPage = frameId;
+	    bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
+	    manager->entries[frameId].vPageNumber = currentThread->space->pageTable[vpn].virtualPage;
 	    manager->entries[frameId].space = currentThread->space;
 
-	    UserRead(badVAddr, swapBuffer, PageSize);
-	    DEBUG('p', "FINISHED USERREAD\n");
+	    UserRead(badVAddr, swapBuffer, PageSize); //load memory with page from swap file
 
+	    //reset PC to repeat instruction
 	    int pc = machine->ReadRegister(PCReg);
-	    DEBUG('p', "Current PC:%x\n", machine->ReadRegister(PCReg));
-	    
  	    machine->WriteRegister(PrevPCReg, pc-4);
 	    machine->WriteRegister(PCReg, pc);
 	    machine->WriteRegister(NextPCReg, pc +4);  
-	    DEBUG('p', "Current PC:%x\n", machine->ReadRegister(PCReg));
+	}
+	else //no free frames
+	{
+	    DEBUG('p', "Looking to replace Frame at index %d\n", manager->replaceIndex);
+	    CoreMapEntry *entry = &manager->entries[manager->replaceIndex];
+	    DEBUG('p', "Evicting from pid[%d], page %d!!\n", entry->space->pcb->GetPID(), entry->vPageNumber);
 
+	    //update victim page table
+	    entry->space->pageTable[entry->vPageNumber].persisted = true;
+	    entry->space->pageTable[entry->vPageNumber].valid = false;
+	    
+
+	    if(entry->space->pageTable[entry->vPageNumber].dirty)
+	    {
+		DEBUG('p', "Page %d is dirty. Writing to %s...\n", entry->vPageNumber, entry->space->swap);
+		int start = entry->space->pageTable[entry->vPageNumber].virtualPage * PageSize;
+		UserWrite(entry->space->pageTable[entry->vPageNumber].virtualPage, swapBuffer, PageSize);
+		int write = swap->WriteAt(swapBuffer, PageSize, start);
+	    }
+	    else
+	    {
+		int start = vpn * PageSize;
+		DEBUG('p', "Start point for reading is 0x%x\n", start);
+		int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
+		DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
+
+		bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
+// 		UserRead(badVAddr, swapBuffer, PageSize);
+	    }
+
+            //update coremap entry to refer to new page
+	    entry->vPageNumber = vpn;
+	    entry->space = currentThread->space;
+	    manager->replaceIndex++;
+	    manager->replaceIndex  = manager->replaceIndex % manager->totalPages;
 	}
     }
     else if(which == SyscallException)

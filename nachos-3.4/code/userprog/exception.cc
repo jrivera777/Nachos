@@ -42,12 +42,14 @@ int UserRead(int virtAddr, char * buffer, int size)
 	while ( size > 0 ) 
 	{
 	    machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+	    DEBUG('p', "VA: %x = PA:%x\n", virtAddr, phyAddr);
 	    left = PageSize - (phyAddr) % PageSize;
 	    copy_size = min( left, size);
 	    bcopy ( buffer + copied,&machine->mainMemory[phyAddr], copy_size);
 	    size -= copy_size;
 	    copied += copy_size;
 	    virtAddr += copy_size;
+	    DEBUG('p', "Wrote to memory!\n");
 	}	
 	return copied;
 }
@@ -135,8 +137,37 @@ ExceptionHandler(ExceptionType which)
 
     if(which == PageFaultException)
     {
+	char swapBuffer[PageSize];
+	MemManager *manager  = MemManager::GetInstance();
 	int badVAddr = machine->ReadRegister(BadVAddrReg);
 	DEBUG('p', "Page Fault occurred at VA=0x%x\n", badVAddr);
+	int frameId = manager->GetPage();
+	if(frameId >= 0)
+	{
+	    DEBUG('p', "Free frame %d found\n", frameId);
+	    OpenFile* swap = fileSystem->Open(currentThread->space->swap);
+	    int start = frameId * PageSize;
+	    int read = swap->ReadAt(swapBuffer, PageSize, start);
+	    DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
+	    DEBUG('p', "VPN = %d\n", badVAddr/PageSize);
+	    currentThread->space->pageTable[badVAddr/PageSize].valid = true;
+	    currentThread->space->pageTable[badVAddr/PageSize].physicalPage = frameId;
+	    bzero(machine->mainMemory + currentThread->space->pageTable[frameId].physicalPage * PageSize, PageSize);
+	    manager->entries[frameId].vPageNumber = currentThread->space->pageTable[badVAddr/PageSize].virtualPage;
+	    manager->entries[frameId].space = currentThread->space;
+
+	    UserRead(badVAddr, swapBuffer, PageSize);
+	    DEBUG('p', "FINISHED USERREAD\n");
+
+	    int pc = machine->ReadRegister(PCReg);
+	    DEBUG('p', "Current PC:%x\n", machine->ReadRegister(PCReg));
+	    
+ 	    machine->WriteRegister(PrevPCReg, pc-4);
+	    machine->WriteRegister(PCReg, pc);
+	    machine->WriteRegister(NextPCReg, pc +4);  
+	    DEBUG('p', "Current PC:%x\n", machine->ReadRegister(PCReg));
+
+	}
     }
     else if(which == SyscallException)
     {
@@ -560,11 +591,14 @@ ExceptionHandler(ExceptionType which)
 		break;
 	    }
 	}
+	UpdatePCRegs();
     }
-    else {
+    else 
+    {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
+	
     }
-    UpdatePCRegs();
+    // DEBUG('p', "Current PC:%x\n", machine->ReadRegister(PCReg));
 }
 

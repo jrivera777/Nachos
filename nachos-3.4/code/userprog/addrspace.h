@@ -47,10 +47,11 @@ class AddrSpace {
     int codeSize;
     int initDataSize;
     int uninitDataSize;
+    int nextVPage;
+    TranslationEntry *pageTable;
 private:
     AddrSpace();   //empty constructor for Fork Operation
     void init(OpenFile* executable, Thread* parent, Thread* selfThread, bool replace); //moved noff data reading and page table building here
-    TranslationEntry *pageTable;
     unsigned int numPages;		                 
     MemManager* manager;  //Memory Manager reference
 };

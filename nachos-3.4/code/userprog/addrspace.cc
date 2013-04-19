@@ -87,6 +87,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
 
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
+    nextVPage = 0;
     manager = MemManager::GetInstance();
 
     if(replace)
@@ -119,6 +120,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     strcat(swap, swid);
     fileSystem->Create(swap, 0);
     DEBUG('p', "Created swapfile = %s\n", swap);
+    DEBUG('p', "Total number Pages = %d\n", numPages);
     // first, set up the translation 
     for (i = 0; i < numPages; i++) 
     {
@@ -129,7 +131,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
 	pageTable[i].readOnly = FALSE; 
-	pageTable[i].inMemory = FALSE; 
+	pageTable[i].persisted = FALSE; 
     }
 
 

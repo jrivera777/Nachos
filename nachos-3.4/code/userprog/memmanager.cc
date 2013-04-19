@@ -48,7 +48,6 @@ MemManager::GetPage()
     int pageNumber = pages->Find(); //locate next free page
     if(pageNumber >= 0)
 	usedPages++; //free page discovered
-    entries[pageNumber].vPageNumber = pageNumber;
     entries[pageNumber].allocated = true;
     mmLock->Release();
 	   

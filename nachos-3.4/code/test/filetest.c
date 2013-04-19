@@ -11,8 +11,6 @@ int main()
     else
     {
 	Write(buffer, 11, src1);
-	Write(buffer, 11, src1);
-	Write(buffer, 11, src1);
 	Close(src1);
 	Exit(0);
     }

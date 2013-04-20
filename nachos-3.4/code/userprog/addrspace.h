@@ -42,6 +42,10 @@ class AddrSpace {
 		 OpenFile* file,
 		 int size,
 		 int fileAddr);
+    int ReadFileIntoBuffer(int virtAddr, 
+			   OpenFile* file,
+			   int size,
+			   int fileAddr, char *into);
     PCB* pcb;
     char swap[10];
     int codeSize;

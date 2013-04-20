@@ -41,14 +41,12 @@ int UserRead(int virtAddr, char * buffer, int size)
 	while ( size > 0 ) 
 	{
 	    machine->Translate(virtAddr, &phyAddr, 1,FALSE);
-	    DEBUG('p', "VA: %x = PA:%x\n", virtAddr, phyAddr);
 	    left = PageSize - (phyAddr) % PageSize;
 	    copy_size = min( left, size);
 	    bcopy ( buffer + copied,&machine->mainMemory[phyAddr], copy_size);
 	    size -= copy_size;
 	    copied += copy_size;
 	    virtAddr += copy_size;
-	    DEBUG('p', "Wrote to memory!\n");
 	}	
 	return copied;
 }
@@ -85,7 +83,6 @@ UpdatePCRegs()
 void
 DummyFunction(int pc)
 {
-    DEBUG('a', "Entered dummy function with PC=[%d]\n", pc);
     currentThread->RestoreUserState();  
     currentThread->space->RestoreState();	
     machine->Run();
@@ -142,31 +139,30 @@ ExceptionHandler(ExceptionType which)
 	DEBUG('p', "Page Fault occurred at VA=0x%x\n", badVAddr);
 	int frameId = manager->GetPage();
 	int vpn = badVAddr/PageSize;
-
+	DEBUG('p', "VPN seems to be %d\n", vpn);
 	OpenFile* swap = fileSystem->Open(currentThread->space->swap);
 
 	if(frameId >= 0)
 	{
 	    DEBUG('p', "Free frame %d found\n", frameId);
 
-	    int start = vpn * PageSize;
+	    currentThread->space->pageTable[vpn].valid = true;
+	    currentThread->space->pageTable[vpn].physicalPage = frameId;
+
+	    int start =currentThread->space->Translate(badVAddr);
+	    DEBUG('p', "Starting address to read = 0x%x\n", start);
 	    int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
 
 	    DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
-	    DEBUG('p', "VPN = %d\n", vpn);
-	    currentThread->space->pageTable[vpn].valid = true;
-	    currentThread->space->pageTable[vpn].physicalPage = frameId;
+
 	    bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
 	    manager->entries[frameId].vPageNumber = currentThread->space->pageTable[vpn].virtualPage;
 	    manager->entries[frameId].space = currentThread->space;
 
-	    UserRead(badVAddr, swapBuffer, PageSize); //load memory with page from swap file
-
-	    //reset PC to repeat instruction
-	    int pc = machine->ReadRegister(PCReg);
- 	    machine->WriteRegister(PrevPCReg, pc-4);
-	    machine->WriteRegister(PCReg, pc);
-	    machine->WriteRegister(NextPCReg, pc +4);  
+	    int phyAddr;
+	    machine->Translate(badVAddr, &phyAddr, 1,FALSE);
+	    DEBUG('p', "Writing data to Memory at 0x%x\n", phyAddr);
+	    bcopy(swapBuffer, &machine->mainMemory[phyAddr], PageSize);
 	}
 	else //no free frames
 	{
@@ -181,19 +177,32 @@ ExceptionHandler(ExceptionType which)
 
 	    if(entry->space->pageTable[entry->vPageNumber].dirty)
 	    {
+		OpenFile *victimSwap;
+		if(strcmp(entry->space->swap, currentThread->space->swap) == 0)
+		    victimSwap = swap;
+		else
+		    victimSwap = fileSystem->Open(entry->space->swap);
+
 		DEBUG('p', "Page %d is dirty. Writing to %s...\n", entry->vPageNumber, entry->space->swap);
+		DEBUG('p', "Virtual Page was %d\n", entry->space->pageTable[entry->vPageNumber].virtualPage); 
 		int start = entry->space->pageTable[entry->vPageNumber].virtualPage * PageSize;
-		UserWrite(entry->space->pageTable[entry->vPageNumber].virtualPage, swapBuffer, PageSize);
+		DEBUG('p', "Starting to read at 0x%x\n", start);
+		bcopy(&machine->mainMemory[entry->space->pageTable[entry->vPageNumber].physicalPage*PageSize], swapBuffer, PageSize);
+		DEBUG('p', "Loaded %d bytes into buffer\n", PageSize);
 		int write = swap->WriteAt(swapBuffer, PageSize, start);
 	    }
 	    else
 	    {
-		int start = vpn * PageSize;
+		int start = currentThread->space->Translate(badVAddr);
 		DEBUG('p', "Start point for reading is 0x%x\n", start);
 		int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
 		DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
 
 		bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
+
+		int phyAddr;
+		machine->Translate(badVAddr, &phyAddr, 1,FALSE);
+		bcopy(swapBuffer, &machine->mainMemory[start], PageSize);
 // 		UserRead(badVAddr, swapBuffer, PageSize);
 	    }
 
@@ -203,6 +212,11 @@ ExceptionHandler(ExceptionType which)
 	    manager->replaceIndex++;
 	    manager->replaceIndex  = manager->replaceIndex % manager->totalPages;
 	}
+	//reset PC to repeat instruction
+	int pc = machine->ReadRegister(PCReg);
+	machine->WriteRegister(PrevPCReg, pc-4);
+	machine->WriteRegister(PCReg, pc);
+	machine->WriteRegister(NextPCReg, pc +4);  
     }
     else if(which == SyscallException)
     {

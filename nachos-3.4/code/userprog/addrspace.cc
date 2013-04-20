@@ -140,13 +140,17 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     OpenFile* swapFile = fileSystem->Open(swap);
     char buffer[size];
     int wrote;
-    DEBUG('p', "About to read %d bytes from executable into swap\n", size);
+    DEBUG('p', "About to read %d bytes from executable into buffer\n", size);
     if(noffH.code.size > 0)
     {
+	// ReadFileIntoBuffer(noffH.code.virtualAddr, executable, noffH.code.size,
+// 			   noffH.code.inFileAddr, buffer);
 	executable->ReadAt(buffer, noffH.code.size, noffH.code.inFileAddr);
     }
     if(noffH.initData.size > 0)
     {
+// 	ReadFileIntoBuffer(noffH.initData.virtualAddr, executable, noffH.initData.size,
+// 			   noffH.initData.inFileAddr, buffer);
 	executable->ReadAt(buffer, noffH.initData.size, noffH.initData.inFileAddr);
     }
 
@@ -300,8 +304,8 @@ AddrSpace::Fork()
     for (int i = 0; i < numPages; i++) 
     {
 	forkedSpace->pageTable[i].virtualPage = i;
-	forkedSpace->pageTable[i].physicalPage = manager->GetPage();
-	forkedSpace->pageTable[i].valid = pageTable[i].valid;
+//	forkedSpace->pageTable[i].physicalPage = manager->GetPage();
+	forkedSpace->pageTable[i].valid = false;
 	forkedSpace->pageTable[i].use = pageTable[i].use;
 	forkedSpace->pageTable[i].dirty = pageTable[i].dirty;
 	forkedSpace->pageTable[i].readOnly = pageTable[i].readOnly;
@@ -329,6 +333,30 @@ AddrSpace::ReadFile(int virtAddr, OpenFile* file, int size, int fileAddr)
 	ASSERT(phyAddr >= 0 );
 	readSize = min(PageSize,left);
 	bcopy(buffer+copied, &machine->mainMemory[phyAddr],readSize);
+	
+	left -= readSize;
+	copied += readSize;
+	virtAddr += readSize;
+    }
+    return currentSize;
+}
+
+int 
+AddrSpace::ReadFileIntoBuffer(int virtAddr, OpenFile* file, int size, int fileAddr, char* into)
+{
+    char buffer[size]; 
+    int currentSize = file->ReadAt(buffer, size, fileAddr);
+    int readSize = 0, copied=  0;
+    int left = currentSize;
+    int phyAddr;
+    
+    while (left > 0) 
+    {
+	phyAddr = Translate(virtAddr);
+	
+	ASSERT(phyAddr >= 0 );
+	readSize = min(PageSize,left);
+	bcopy(buffer+copied, buffer + phyAddr ,readSize);
 	
 	left -= readSize;
 	copied += readSize;

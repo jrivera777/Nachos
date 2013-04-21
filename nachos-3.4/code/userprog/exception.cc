@@ -473,6 +473,7 @@ ExceptionHandler(ExceptionType which)
 		manager->ClearPID(currentPCB->GetPID()); //free up pid
 
 		currentThread->space->FreePages(); // free up pages
+		fileSystem->Remove(currentThread->space->swap);
 
 		Lock* pcbLock = currentPCB->pcbLock;
 		pcbLock->Acquire();
@@ -634,7 +635,8 @@ ExceptionHandler(ExceptionType which)
 			manager->ClearPID(pid); // free pid used by killed process
 			victim->GetThread()->space->FreePages(); //free memory used by killed process
 			threadToBeDestroyed = victim->GetThread();
-			
+			fileSystem->Remove(victim->GetThread()->space->swap);
+
 			Lock* pcbLock = victim->pcbLock;
 			pcbLock->Acquire();
 			victim->pcbCond->Broadcast(pcbLock); //wake up any threads waiting for finish

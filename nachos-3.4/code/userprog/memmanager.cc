@@ -65,6 +65,8 @@ MemManager::ClearPage(int which)
     usedPages--;
     entries[which].vPageNumber = -1;
     entries[which].allocated = false;
+    entries[which].ioLocked = false;
+    entries[which].space = NULL;
     mmLock->Release();
 
     return true;

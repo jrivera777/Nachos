@@ -318,8 +318,7 @@ AddrSpace::Fork(int pid)
     strcpy(forkedSpace->swap,"swap.");
     strcat(forkedSpace->swap, swid);
     fileSystem->Create(forkedSpace->swap, 0);
-    DEBUG('p', "Created swapfile = %s\n", swap);
-    DEBUG('p', "Total number Pages = %d\n", numPages);
+    DEBUG('p', "Created Forked swapfile = %s\n", forkedSpace->swap);
 
     OpenFile* swapFile = fileSystem->Open(swap);
     OpenFile* newSwapFile = fileSystem->Open(forkedSpace->swap);
@@ -327,9 +326,9 @@ AddrSpace::Fork(int pid)
     char buffer[size];
     int wrote,read;
     read = swapFile->ReadAt(buffer,size,0);
-    DEBUG('p', "About to write %d bytes into swapfile %s\n", size, swap);
+    DEBUG('p', "About to write %d bytes into Forked swapfile %s\n", size, forkedSpace->swap);
     wrote = newSwapFile->WriteAt(buffer, size, 0);
-    DEBUG('p', "Wrote %d bytes into swapfile %s\n", wrote, swap);
+    DEBUG('p', "Wrote %d bytes int Forked  swapfile %s\n", wrote, forkedSpace->swap);
 
     forkedSpace->numPages = numPages;
     forkedSpace->manager = manager;
@@ -347,6 +346,7 @@ AddrSpace::Fork(int pid)
 	forkedSpace->pageTable[i].use = pageTable[i].use;
 	forkedSpace->pageTable[i].dirty = pageTable[i].dirty;
 	forkedSpace->pageTable[i].readOnly = pageTable[i].readOnly;
+	forkedSpace->pageTable[i].persisted = FALSE;
 //	bcopy(machine->mainMemory + pageTable[i].physicalPage * PageSize,
 //		machine->mainMemory + forkedSpace->pageTable[i].physicalPage * PageSize, 
 //		PageSize );
@@ -404,6 +404,13 @@ AddrSpace::ReadFileIntoBuffer(int virtAddr, OpenFile* file, int size, int fileAd
 void
 AddrSpace::FreePages()
 {
-    for(int i = 0; i < numPages; i++)
+    for(int i = 0; i < numPages; i++){
 	manager->ClearPage(pageTable[i].physicalPage);
+	pageTable[i].valid = FALSE;
+	pageTable[i].valid = FALSE;
+	pageTable[i].use = FALSE;
+	pageTable[i].dirty = FALSE;
+	pageTable[i].readOnly = FALSE; 
+	pageTable[i].persisted = FALSE; 
+    }
 }

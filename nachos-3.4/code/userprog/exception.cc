@@ -558,7 +558,8 @@ ExceptionHandler(ExceptionType which)
 
 		currentThread->space->SaveState(); //save old registers
 
-		AddrSpace* fSpace = currentThread->space->Fork(); //make duplicate address space
+		int pid = manager->GetPID(); //find next available pid
+		AddrSpace* fSpace = currentThread->space->Fork(pid); //make duplicate address space
 		if(fSpace == NULL){
 			printf("Unable to create Address Space\n");
 			machine->WriteRegister(2, -1);
@@ -576,7 +577,6 @@ ExceptionHandler(ExceptionType which)
 		fThread->SetUserRegister(PCReg, pc); //set PC to whatever is in r4
 		fThread->SetUserRegister(NextPCReg, pc+4);
 
-		int pid = manager->GetPID(); //find next available pid
 		ASSERT(pid >= 0);
 		PCB* pcb = new PCB(fThread, pid, currentThread);
 	       

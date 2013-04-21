@@ -37,7 +37,7 @@ class AddrSpace {
 
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
-    AddrSpace* Fork();                  // Create duplicate address space
+    AddrSpace* Fork(int pid);                  // Create duplicate address space
     void FreePages();                   //Free allocated physical pages
     int ReadFile(int virtAddr, 
 		 OpenFile* file,

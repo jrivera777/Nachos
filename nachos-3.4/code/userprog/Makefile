@@ -30,12 +30,12 @@ include ../Makefile.dep
 main.o: ../threads/main.cc ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/system.h ../threads/thread.h \
   ../machine/machine.h ../threads/utility.h ../machine/translate.h \
@@ -52,24 +52,24 @@ main.o: ../threads/main.cc ../threads/copyright.h ../threads/utility.h \
 list.o: ../threads/list.cc ../threads/copyright.h ../threads/list.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h
 scheduler.o: ../threads/scheduler.cc ../threads/copyright.h \
   ../threads/scheduler.h ../threads/list.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/thread.h ../machine/machine.h \
   ../threads/utility.h ../machine/translate.h ../machine/disk.h \
@@ -86,12 +86,12 @@ synch.o: ../threads/synch.cc ../threads/copyright.h ../threads/synch.h \
   ../threads/thread.h ../threads/utility.h ../threads/bool.h \
   ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/machine.h ../threads/utility.h \
   ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
@@ -109,12 +109,12 @@ synchlist.o: ../threads/synchlist.cc ../threads/copyright.h \
   ../threads/synchlist.h ../threads/list.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/synch.h ../threads/thread.h \
   ../machine/machine.h ../threads/utility.h ../machine/translate.h \
@@ -128,12 +128,12 @@ synchlist.o: ../threads/synchlist.cc ../threads/copyright.h \
 system.o: ../threads/system.cc ../threads/copyright.h ../threads/system.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/thread.h ../machine/machine.h \
   ../threads/utility.h ../machine/translate.h ../machine/disk.h \
@@ -150,12 +150,12 @@ system.o: ../threads/system.cc ../threads/copyright.h ../threads/system.h \
 thread.o: ../threads/thread.cc ../threads/copyright.h ../threads/thread.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/machine.h ../threads/utility.h \
   ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
@@ -172,24 +172,24 @@ thread.o: ../threads/thread.cc ../threads/copyright.h ../threads/thread.h \
 utility.o: ../threads/utility.cc ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/stdarg.h
 threadtest.o: ../threads/threadtest.cc ../threads/copyright.h \
   ../threads/system.h ../threads/utility.h ../threads/bool.h \
   ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/thread.h ../machine/machine.h \
   ../threads/utility.h ../machine/translate.h ../machine/disk.h \
@@ -207,12 +207,12 @@ interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../machine/interrupt.h ../threads/list.h ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/system.h ../threads/thread.h \
   ../machine/machine.h ../threads/utility.h ../machine/translate.h \
@@ -228,28 +228,29 @@ interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../filesys/filemanager.h
 sysdep.o: ../machine/sysdep.cc ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/endian.h /usr/include/bits/endian.h /usr/include/xlocale.h \
   /usr/include/sys/types.h /usr/include/time.h /usr/include/sys/select.h \
   /usr/include/bits/select.h /usr/include/bits/sigset.h \
   /usr/include/bits/time.h /usr/include/sys/sysmacros.h \
-  /usr/include/bits/pthreadtypes.h /usr/include/alloca.h \
-  /usr/include/string.h /usr/include/signal.h /usr/include/bits/signum.h \
-  /usr/include/bits/siginfo.h /usr/include/bits/sigaction.h \
-  /usr/include/bits/sigcontext.h /usr/include/bits/sigstack.h \
+  /usr/include/bits/pthreadtypes.h /usr/include/bits/sched.h \
+  /usr/include/alloca.h /usr/include/string.h /usr/include/signal.h \
+  /usr/include/bits/signum.h /usr/include/bits/siginfo.h \
+  /usr/include/bits/sigaction.h /usr/include/bits/sigcontext.h \
+  /usr/include/asm/sigcontext.h /usr/include/bits/sigstack.h \
   /usr/include/sys/ucontext.h /usr/include/bits/sigthread.h \
   /usr/include/sys/time.h /usr/include/sys/socket.h \
   /usr/include/sys/uio.h /usr/include/bits/uio.h \
   /usr/include/bits/socket.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/limits.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/syslimits.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/limits.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/syslimits.h \
   /usr/include/limits.h /usr/include/bits/posix1_lim.h \
   /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
   /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
@@ -276,23 +277,23 @@ sysdep.o: ../machine/sysdep.cc ../threads/copyright.h \
 stats.o: ../machine/stats.cc ../threads/copyright.h ../threads/utility.h \
   ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/stats.h
 timer.o: ../machine/timer.cc ../threads/copyright.h ../machine/timer.h \
   ../threads/utility.h ../threads/copyright.h ../threads/bool.h \
   ../machine/sysdep.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/system.h ../threads/utility.h \
   ../threads/thread.h ../machine/machine.h ../machine/translate.h \
@@ -310,12 +311,12 @@ addrspace.o: ../userprog/addrspace.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/thread.h ../machine/machine.h \
   ../threads/utility.h ../machine/translate.h ../machine/disk.h \
@@ -333,12 +334,12 @@ bitmap.o: ../userprog/bitmap.cc ../threads/copyright.h \
   ../userprog/bitmap.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../filesys/openfile.h ../threads/copyright.h \
   ../threads/utility.h
@@ -346,12 +347,12 @@ memmanager.o: ../userprog/memmanager.cc ../userprog/memmanager.h \
   ../threads/synch.h ../threads/copyright.h ../threads/thread.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/machine.h ../threads/utility.h \
   ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
@@ -366,12 +367,12 @@ pcb.o: ../userprog/pcb.cc ../userprog/pcb.h ../threads/thread.h \
   ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
   ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/machine.h ../threads/utility.h \
   ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
@@ -384,15 +385,15 @@ pcb.o: ../userprog/pcb.cc ../userprog/pcb.h ../threads/thread.h \
   ../filesys/useropenfile.h
 pcbmanager.o: ../userprog/pcbmanager.cc /usr/include/string.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
   /usr/include/xlocale.h ../userprog/pcbmanager.h ../threads/synch.h \
   ../threads/copyright.h ../threads/thread.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/bits/types.h \
-  /usr/include/bits/typesizes.h /usr/include/libio.h \
-  /usr/include/_G_config.h /usr/include/wchar.h ../threads/stdarg.h \
+  /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h \
+  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
+  /usr/include/bits/wchar.h /usr/include/gconv.h ../threads/stdarg.h \
   /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
   ../machine/machine.h ../threads/utility.h ../machine/translate.h \
   ../machine/disk.h ../userprog/addrspace.h ../threads/copyright.h \
@@ -404,12 +405,12 @@ pcbmanager.o: ../userprog/pcbmanager.cc /usr/include/string.h \
   ../filesys/sysopenfile.h ../filesys/useropenfile.h ../threads/list.h
 exception.o: ../userprog/exception.cc /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/copyright.h ../threads/system.h \
   ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
@@ -429,12 +430,12 @@ progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
   /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/thread.h ../machine/machine.h \
   ../threads/utility.h ../machine/translate.h ../machine/disk.h \
@@ -452,30 +453,29 @@ sysopenfile.o: ../filesys/sysopenfile.cc ../filesys/sysopenfile.h \
   ../filesys/openfile.h ../threads/copyright.h ../threads/utility.h \
   ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h
 useropenfile.o: ../filesys/useropenfile.cc ../filesys/useropenfile.h \
   /usr/include/string.h /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
   /usr/include/xlocale.h
 filemanager.o: ../filesys/filemanager.cc ../filesys/filemanager.h \
   ../userprog/bitmap.h ../threads/copyright.h ../threads/utility.h \
   ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../filesys/openfile.h ../threads/copyright.h \
   ../threads/utility.h ../threads/synch.h ../threads/thread.h \
@@ -490,12 +490,12 @@ console.o: ../machine/console.cc ../threads/copyright.h \
   ../machine/console.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../threads/system.h ../threads/utility.h \
   ../threads/thread.h ../machine/machine.h ../machine/translate.h \
@@ -513,12 +513,12 @@ machine.o: ../machine/machine.cc ../threads/copyright.h \
   ../machine/machine.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/translate.h ../machine/disk.h \
   ../threads/system.h ../threads/utility.h ../threads/thread.h \
@@ -536,12 +536,12 @@ mipssim.o: ../machine/mipssim.cc ../threads/copyright.h \
   ../machine/machine.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/translate.h ../machine/disk.h \
   ../machine/mipssim.h ../threads/system.h ../threads/utility.h \
@@ -560,12 +560,12 @@ translate.o: ../machine/translate.cc ../threads/copyright.h \
   ../machine/machine.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
-  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i486-linux-gnu/3.4.6/include/stddef.h \
-  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
-  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
-  ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
+  /usr/include/gnu/stubs.h \
+  /usr/lib/gcc/i386-redhat-linux/3.4.6/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+  /usr/include/bits/typesizes.h /usr/include/libio.h \
+  /usr/include/_G_config.h /usr/include/wchar.h /usr/include/bits/wchar.h \
+  /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../machine/translate.h ../machine/disk.h \
   ../userprog/addrspace.h ../threads/copyright.h ../filesys/filesys.h \

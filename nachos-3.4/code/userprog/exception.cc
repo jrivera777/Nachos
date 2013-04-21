@@ -149,20 +149,26 @@ ExceptionHandler(ExceptionType which)
 	    currentThread->space->pageTable[vpn].valid = true;
 	    currentThread->space->pageTable[vpn].physicalPage = frameId;
 
-	    int start =currentThread->space->Translate(badVAddr);
+//	    int start =currentThread->space->Translate(badVAddr);
+	    int start =currentThread->space->TranslateDiskLocation(badVAddr);
 	    DEBUG('p', "Starting address to read = 0x%x\n", start);
 	    int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
 
-	    DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
+	    DEBUG('p', "Read %d bytes from %s pagesize(%d)\n", read, currentThread->space->swap,PageSize);
+
+
+	//    machine->Translate(badVAddr, &phyAddr, 1,FALSE);
+	//    phyAddr = currentThread->space->Translate(badVAddr);
 
 	    bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
 	    manager->entries[frameId].vPageNumber = currentThread->space->pageTable[vpn].virtualPage;
 	    manager->entries[frameId].space = currentThread->space;
-
-	    int phyAddr;
-	    machine->Translate(badVAddr, &phyAddr, 1,FALSE);
+            
+	    int tocopy = min(read,PageSize);
+	    int phyAddr = frameId * PageSize;
 	    DEBUG('p', "Writing data to Memory at 0x%x\n", phyAddr);
-	    bcopy(swapBuffer, &machine->mainMemory[phyAddr], PageSize);
+	    bcopy(swapBuffer, &machine->mainMemory[phyAddr], tocopy);
+	    
 	}
 	else //no free frames
 	{
@@ -173,7 +179,12 @@ ExceptionHandler(ExceptionType which)
 	    //update victim page table
 	    entry->space->pageTable[entry->vPageNumber].persisted = true;
 	    entry->space->pageTable[entry->vPageNumber].valid = false;
+
+	    currentThread->space->pageTable[vpn].valid = true;
+	    currentThread->space->pageTable[vpn].physicalPage = entry->space->pageTable[entry->vPageNumber].physicalPage;
 	    
+		if (swap ==NULL)
+	    DEBUG('p', "Swap is NULL\n");
 
 	    if(entry->space->pageTable[entry->vPageNumber].dirty)
 	    {
@@ -190,21 +201,21 @@ ExceptionHandler(ExceptionType which)
 		bcopy(&machine->mainMemory[entry->space->pageTable[entry->vPageNumber].physicalPage*PageSize], swapBuffer, PageSize);
 		DEBUG('p', "Loaded %d bytes into buffer\n", PageSize);
 		int write = swap->WriteAt(swapBuffer, PageSize, start);
+	
+		
 	    }
-	    else
-	    {
-		int start = currentThread->space->Translate(badVAddr);
+		int start = currentThread->space->TranslateDiskLocation(badVAddr);
 		DEBUG('p', "Start point for reading is 0x%x\n", start);
 		int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
 		DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
 
 		bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
 
-		int phyAddr;
-		machine->Translate(badVAddr, &phyAddr, 1,FALSE);
-		bcopy(swapBuffer, &machine->mainMemory[start], PageSize);
+//		machine->Translate(badVAddr, &phyAddr, 1,FALSE);
+		int phyAddr = currentThread->space->pageTable[vpn].physicalPage * PageSize;
+		int tocopy = min(read,PageSize);
+		bcopy(swapBuffer, &machine->mainMemory[phyAddr], tocopy);
 // 		UserRead(badVAddr, swapBuffer, PageSize);
-	    }
 
             //update coremap entry to refer to new page
 	    entry->vPageNumber = vpn;
@@ -213,10 +224,10 @@ ExceptionHandler(ExceptionType which)
 	    manager->replaceIndex  = manager->replaceIndex % manager->totalPages;
 	}
 	//reset PC to repeat instruction
-	int pc = machine->ReadRegister(PCReg);
-	machine->WriteRegister(PrevPCReg, pc-4);
-	machine->WriteRegister(PCReg, pc);
-	machine->WriteRegister(NextPCReg, pc +4);  
+	//int pc = machine->ReadRegister(PCReg);
+	//machine->WriteRegister(PrevPCReg, pc-4);
+	//machine->WriteRegister(PCReg, pc);
+	//machine->WriteRegister(NextPCReg, pc +4);  
     }
     else if(which == SyscallException)
     {

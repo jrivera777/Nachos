@@ -132,6 +132,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
 	pageTable[i].dirty = FALSE;
 	pageTable[i].readOnly = FALSE; 
 	pageTable[i].persisted = FALSE; 
+	pageTable[i].location = i;
     }
 
 
@@ -143,15 +144,17 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     DEBUG('p', "About to read %d bytes from executable into buffer\n", size);
     if(noffH.code.size > 0)
     {
-	// ReadFileIntoBuffer(noffH.code.virtualAddr, executable, noffH.code.size,
-// 			   noffH.code.inFileAddr, buffer);
-	executable->ReadAt(buffer, noffH.code.size, noffH.code.inFileAddr);
+	 ReadFileIntoBuffer(noffH.code.virtualAddr, executable, noffH.code.size,
+ 			   noffH.code.inFileAddr, buffer);
+//	executable->ReadAt(buffer, noffH.code.size, noffH.code.inFileAddr);
+    DEBUG('p', "Read code %d to %x \n", noffH.code.size , noffH.code.virtualAddr);
     }
     if(noffH.initData.size > 0)
     {
-// 	ReadFileIntoBuffer(noffH.initData.virtualAddr, executable, noffH.initData.size,
-// 			   noffH.initData.inFileAddr, buffer);
-	executable->ReadAt(buffer, noffH.initData.size, noffH.initData.inFileAddr);
+ 	ReadFileIntoBuffer(noffH.initData.virtualAddr, executable, noffH.initData.size,
+ 			   noffH.initData.inFileAddr, buffer);
+//	executable->ReadAt(buffer, noffH.initData.size, noffH.initData.inFileAddr);
+    DEBUG('p', "Read data %d to %x\n", noffH.initData.size, noffH.initData.virtualAddr);
     }
 
     DEBUG('p', "About to write %d bytes into swapfile %s\n", size, swap);
@@ -226,6 +229,23 @@ AddrSpace::Translate(int virtAddr)
 	return physAddr;
 }
 
+int 
+AddrSpace::TranslateDiskLocation(int virtAddr)
+{
+	int physAddr;
+	int vpn = virtAddr / PageSize;
+	int offset = virtAddr % PageSize;
+
+	if(vpn >= numPages){
+		DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
+		return -1;
+	}
+
+	physAddr = PageSize * pageTable[vpn].location;
+	DEBUG('a', "Location Translate VPN %d to LOC %d + %d \n",virtAddr,physAddr,offset);
+
+	return physAddr;
+}
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 // 	Set the initial values for the user-level register set.
@@ -348,15 +368,13 @@ AddrSpace::ReadFileIntoBuffer(int virtAddr, OpenFile* file, int size, int fileAd
     int currentSize = file->ReadAt(buffer, size, fileAddr);
     int readSize = 0, copied=  0;
     int left = currentSize;
-    int phyAddr;
+    int location;
     
     while (left > 0) 
     {
-	phyAddr = Translate(virtAddr);
-	
-	ASSERT(phyAddr >= 0 );
+//	location = TranslateDiskLocation(virtAddr);
 	readSize = min(PageSize,left);
-	bcopy(buffer+copied, buffer + phyAddr ,readSize);
+	bcopy(buffer+copied, into+virtAddr,readSize);
 	
 	left -= readSize;
 	copied += readSize;

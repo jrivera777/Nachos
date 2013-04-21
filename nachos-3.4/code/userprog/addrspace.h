@@ -33,6 +33,7 @@ class AddrSpace {
     int GetNumPages() {return numPages;};
     void InitRegisters();		// Initialize user-level CPU registers,
     int Translate(int i);               // before jumping to user code
+    int TranslateDiskLocation(int i);               // before jumping to user code
 
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 

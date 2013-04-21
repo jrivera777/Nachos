@@ -37,10 +37,16 @@ int UserRead(int virtAddr, char * buffer, int size)
 {
 	int pos = 0,copied =0, left = 0, copy_size;
 	int phyAddr;
+	ExceptionType exception;
 
 	while ( size > 0 ) 
 	{
-	    machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+			do {
+	    			exception = machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+				if (exception != NoException) {
+					machine->RaiseException(exception, virtAddr);
+				}
+			}while(exception != NoException);
 	    left = PageSize - (phyAddr) % PageSize;
 	    copy_size = min( left, size);
 	    bcopy ( buffer + copied,&machine->mainMemory[phyAddr], copy_size);
@@ -55,10 +61,16 @@ int UserWrite(int virtAddr, char * buffer, int size)
 {
 	int pos = 0,copied =0, left = 0, copy_size;
 	int phyAddr;
+	ExceptionType exception;
 
 	while ( size > 0 ) 
 	{
-	    machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+			do {
+	    			exception = machine->Translate(virtAddr, &phyAddr, 1,FALSE);
+				if (exception != NoException) {
+					machine->RaiseException(exception, virtAddr);
+				}
+			}while(exception != NoException);
 	    left = PageSize - (phyAddr) % PageSize;
 	    copy_size = min( left, size);
 	    bcopy (&machine->mainMemory[phyAddr], buffer + copied, copy_size);
@@ -93,9 +105,16 @@ readPath(char *path, int cmd)
 {
 	int pos = 0,copied =0;
 	int phyAddr;
+	ExceptionType exception;
 
 	do {
-		machine->Translate(cmd, &phyAddr, 1,FALSE);
+			do {
+				exception = machine->Translate(cmd, &phyAddr, 1,FALSE);
+				if (exception != NoException) {
+					machine->RaiseException(exception, cmd);
+				}
+			}while(exception != NoException);
+
 		bcopy(&machine->mainMemory[phyAddr], path + copied, 1);
 		copied++;
 		cmd++;

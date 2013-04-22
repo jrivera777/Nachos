@@ -158,7 +158,6 @@ ExceptionHandler(ExceptionType which)
 	DEBUG('p', "Page Fault occurred at VA=0x%x\n", badVAddr);
 	int frameId = manager->GetPage();
 	int vpn = badVAddr/PageSize;
-	DEBUG('p', "VPN seems to be %d\n", vpn);
 	OpenFile* swap = fileSystem->Open(currentThread->space->swap);
 
 	if(frameId >= 0)
@@ -167,17 +166,14 @@ ExceptionHandler(ExceptionType which)
 
 	    currentThread->space->pageTable[vpn].valid = true;
 	    currentThread->space->pageTable[vpn].physicalPage = frameId;
-
-//	    int start =currentThread->space->Translate(badVAddr);
+	    currentThread->space->pageTable[vpn].persisted = false;
 	    int start =currentThread->space->TranslateDiskLocation(badVAddr);
 	    DEBUG('p', "Starting address to read = 0x%x\n", start);
+	    manager->entries[frameId].ioLocked = true;
 	    int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
-
+	    
 	    DEBUG('p', "Read %d bytes from %s pagesize(%d)\n", read, currentThread->space->swap,PageSize);
 
-
-	//    machine->Translate(badVAddr, &phyAddr, 1,FALSE);
-	//    phyAddr = currentThread->space->Translate(badVAddr);
 
 	    bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
 	    manager->entries[frameId].vPageNumber = currentThread->space->pageTable[vpn].virtualPage;
@@ -187,11 +183,18 @@ ExceptionHandler(ExceptionType which)
 	    int phyAddr = frameId * PageSize;
 	    DEBUG('p', "Writing data to Memory at 0x%x\n", phyAddr);
 	    bcopy(swapBuffer, &machine->mainMemory[phyAddr], tocopy);
+	    manager->entries[frameId].ioLocked = false;
+	    printf("L [%d]: [%d] -> [%d]\n", currentThread->space->pcb->GetPID(), manager->entries[frameId].vPageNumber, frameId);
 	    
 	}
 	else //no free frames
 	{
 	    DEBUG('p', "Looking to replace Frame at index %d\n", manager->replaceIndex);
+	    while(manager->entries[manager->replaceIndex].ioLocked)
+	    {
+		manager->replaceIndex++;
+		manager->replaceIndex  = manager->replaceIndex % manager->totalPages;
+	    }
 	    CoreMapEntry *entry = &manager->entries[manager->replaceIndex];
 	    DEBUG('p', "Evicting from pid[%d], page %d!!\n", entry->space->pcb->GetPID(), entry->vPageNumber);
 
@@ -202,8 +205,6 @@ ExceptionHandler(ExceptionType which)
 	    currentThread->space->pageTable[vpn].valid = true;
 	    currentThread->space->pageTable[vpn].physicalPage = entry->space->pageTable[entry->vPageNumber].physicalPage;
 	    
-		if (swap ==NULL)
-	    DEBUG('p', "Swap is NULL\n");
 
 	    if(entry->space->pageTable[entry->vPageNumber].dirty)
 	    {
@@ -214,39 +215,40 @@ ExceptionHandler(ExceptionType which)
 		    victimSwap = fileSystem->Open(entry->space->swap);
 
 		DEBUG('p', "Page %d is dirty. Writing to %s...\n", entry->vPageNumber, entry->space->swap);
-		DEBUG('p', "Virtual Page was %d\n", entry->space->pageTable[entry->vPageNumber].virtualPage); 
 		int start = entry->space->pageTable[entry->vPageNumber].virtualPage * PageSize;
-		DEBUG('p', "Starting to read at 0x%x\n", start);
+		entry->ioLocked = true;
 		bcopy(&machine->mainMemory[entry->space->pageTable[entry->vPageNumber].physicalPage*PageSize], swapBuffer, PageSize);
-		DEBUG('p', "Loaded %d bytes into buffer\n", PageSize);
+		
 		int write = swap->WriteAt(swapBuffer, PageSize, start);
-	
+		entry->ioLocked = false;
+		printf("S [%d]: [%d]\n", entry->space->pcb->GetPID(), manager->replaceIndex);
 		
 	    }
-		int start = currentThread->space->TranslateDiskLocation(badVAddr);
-		DEBUG('p', "Start point for reading is 0x%x\n", start);
-		int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
-		DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
+	    else
+		printf("E [%d]: [%d]\n", entry->space->pcb->GetPID(), manager->replaceIndex);
 
-		bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
+	    int start = currentThread->space->TranslateDiskLocation(badVAddr);
+	    DEBUG('p', "Start point for reading is 0x%x\n", start);
+	    entry->ioLocked = true;
+	    int read = swap->ReadAt(swapBuffer, PageSize, start); //read swap file
+	    DEBUG('p', "Read %d bytes from %s\n", read, currentThread->space->swap);
+	    
+	    bzero(machine->mainMemory + currentThread->space->pageTable[vpn].physicalPage * PageSize, PageSize);
+	    
+	    int phyAddr = currentThread->space->pageTable[vpn].physicalPage * PageSize;
+	    int tocopy = min(read,PageSize);
+	    bcopy(swapBuffer, &machine->mainMemory[phyAddr], tocopy);
+	    entry->ioLocked = false;
 
-//		machine->Translate(badVAddr, &phyAddr, 1,FALSE);
-		int phyAddr = currentThread->space->pageTable[vpn].physicalPage * PageSize;
-		int tocopy = min(read,PageSize);
-		bcopy(swapBuffer, &machine->mainMemory[phyAddr], tocopy);
-// 		UserRead(badVAddr, swapBuffer, PageSize);
+	    printf("L [%d]: [%d] -> [%d]\n", currentThread->space->pcb->GetPID(), manager->entries[frameId].vPageNumber, manager->replaceIndex);	    
 
             //update coremap entry to refer to new page
 	    entry->vPageNumber = vpn;
 	    entry->space = currentThread->space;
+	    entry->space->pageTable[manager->replaceIndex].persisted = false;
 	    manager->replaceIndex++;
 	    manager->replaceIndex  = manager->replaceIndex % manager->totalPages;
 	}
-	//reset PC to repeat instruction
-	//int pc = machine->ReadRegister(PCReg);
-	//machine->WriteRegister(PrevPCReg, pc-4);
-	//machine->WriteRegister(PCReg, pc);
-	//machine->WriteRegister(NextPCReg, pc +4);  
     }
     else if(which == SyscallException)
     {

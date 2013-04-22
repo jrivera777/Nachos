@@ -92,13 +92,7 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
 
     if(replace)
 	    parent->space->FreePages();
-//     if(numPages > manager->GetFreePages())
-//     {
-// 	    printf("Not enough memory.\n");
-// 	    numPages = 0;
-// 	    return;
-//     }
-
+    
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					 manager->GetFreePages(), size);
 
@@ -121,12 +115,11 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     fileSystem->Create(swap, 0);
     DEBUG('p', "Created swapfile = %s\n", swap);
     DEBUG('p', "Total number Pages = %d\n", numPages);
-    // first, set up the translation 
+    
+// first, set up the translation 
     for (i = 0; i < numPages; i++) 
     {
 	pageTable[i].virtualPage = i;
-//	pageTable[i].physicalPage = manager->GetPage();
-//	bzero(machine->mainMemory + pageTable[i].physicalPage * PageSize, PageSize);
 	pageTable[i].valid = FALSE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
@@ -144,41 +137,19 @@ AddrSpace::init(OpenFile* executable, Thread* parent, Thread *selfThread, bool r
     DEBUG('p', "About to read %d bytes from executable into buffer\n", size);
     if(noffH.code.size > 0)
     {
-	 ReadFileIntoBuffer(noffH.code.virtualAddr, executable, noffH.code.size,
- 			   noffH.code.inFileAddr, buffer);
-//	executable->ReadAt(buffer, noffH.code.size, noffH.code.inFileAddr);
-    DEBUG('p', "Read code %d to %x \n", noffH.code.size , noffH.code.virtualAddr);
+	ReadFileIntoBuffer(noffH.code.virtualAddr, executable, noffH.code.size,
+			    noffH.code.inFileAddr, buffer);
+	DEBUG('p', "Read code %d to %x \n", noffH.code.size , noffH.code.virtualAddr);
     }
     if(noffH.initData.size > 0)
     {
  	ReadFileIntoBuffer(noffH.initData.virtualAddr, executable, noffH.initData.size,
  			   noffH.initData.inFileAddr, buffer);
-//	executable->ReadAt(buffer, noffH.initData.size, noffH.initData.inFileAddr);
-    DEBUG('p', "Read data %d to %x\n", noffH.initData.size, noffH.initData.virtualAddr);
+	DEBUG('p', "Read data %d to %x\n", noffH.initData.size, noffH.initData.virtualAddr);
     }
-
-    DEBUG('p', "About to write %d bytes into swapfile %s\n", size, swap);
+    
     wrote = swapFile->WriteAt(buffer, size, 0);
-    DEBUG('p', "Wrote %d bytes into swapfile %s\n", wrote, swap);
-
-
-    // then, copy in the code and data segments into memory
-//     if (noffH.code.size > 0) 
-//     {
-//         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
-// 			noffH.code.virtualAddr, noffH.code.size);
-// 	ReadFile(noffH.code.virtualAddr, executable, noffH.code.size,
-// 		 noffH.code.inFileAddr);
-//     }
-//     if (noffH.initData.size > 0) 
-//     {
-//         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
-// 			noffH.initData.virtualAddr, noffH.initData.size);
-// 	ReadFile(noffH.initData.virtualAddr, executable, noffH.initData.size,
-// 			noffH.initData.inFileAddr);
-// //        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-// //			noffH.initData.size, noffH.initData.inFileAddr);
-//     }
+        
     printf("Loaded Program: [%d] code |  [%d] data | [%d] bss\n", codeSize, 
 	   initDataSize, uninitDataSize);
 }
@@ -222,29 +193,29 @@ AddrSpace::Translate(int virtAddr)
 		DEBUG('a', "Translate VPN %d Invalid \n",virtAddr);
 		return -1;
 	}
-
+	
 	physAddr = PageSize * pageTable[vpn].physicalPage + offset;
 	DEBUG('a', "Translate VPN %d to PFN %d \n",virtAddr,physAddr);
-
+	
 	return physAddr;
 }
 
 int 
 AddrSpace::TranslateDiskLocation(int virtAddr)
 {
-	int physAddr;
-	int vpn = virtAddr / PageSize;
-	int offset = virtAddr % PageSize;
-
-	if(vpn >= numPages){
-		DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
-		return -1;
-	}
-
-	physAddr = PageSize * pageTable[vpn].location;
-	DEBUG('a', "Location Translate VPN %d to LOC %d + %d \n",virtAddr,physAddr,offset);
-
-	return physAddr;
+    int physAddr;
+    int vpn = virtAddr / PageSize;
+    int offset = virtAddr % PageSize;
+    
+    if(vpn >= numPages){
+	DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
+	return -1;
+    }
+    
+    physAddr = PageSize * pageTable[vpn].location;
+    DEBUG('a', "Location Translate VPN %d to LOC %d + %d \n",virtAddr,physAddr,offset);
+    
+    return physAddr;
 }
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
@@ -259,20 +230,20 @@ void
 AddrSpace::InitRegisters()
 {
     int i;
-
+    
     for (i = 0; i < NumTotalRegs; i++)
 	machine->WriteRegister(i, 0);
-
+    
     // Initial program counter -- must be location of "Start"
     machine->WriteRegister(PCReg, 0);	
-
+    
     // Need to also tell MIPS where next instruction is, because
     // of branch delay possibility
     machine->WriteRegister(NextPCReg, 4);
-
-   // Set the stack register to the end of the address space, where we
-   // allocated the stack; but subtract off a bit, to make sure we don't
-   // accidentally reference off the end!
+    
+    // Set the stack register to the end of the address space, where we
+    // allocated the stack; but subtract off a bit, to make sure we don't
+    // accidentally reference off the end!
     machine->WriteRegister(StackReg, numPages * PageSize - 16);
     DEBUG('a', "Initializing stack register to %d\n", numPages * PageSize - 16);
 }
@@ -335,23 +306,19 @@ AddrSpace::Fork(int pid)
     forkedSpace->codeSize = codeSize;
     forkedSpace->initDataSize = initDataSize;
     forkedSpace->uninitDataSize = uninitDataSize;
-    //set up page table or copy it?
+ 
     forkedSpace->pageTable = new TranslationEntry[numPages];
     for (int i = 0; i < numPages; i++) 
     {
 	forkedSpace->pageTable[i].virtualPage = i;
 	forkedSpace->pageTable[i].location = i;
-//	forkedSpace->pageTable[i].physicalPage = manager->GetPage();
 	forkedSpace->pageTable[i].valid = FALSE;
 	forkedSpace->pageTable[i].use = pageTable[i].use;
 	forkedSpace->pageTable[i].dirty = pageTable[i].dirty;
 	forkedSpace->pageTable[i].readOnly = pageTable[i].readOnly;
 	forkedSpace->pageTable[i].persisted = FALSE;
-//	bcopy(machine->mainMemory + pageTable[i].physicalPage * PageSize,
-//		machine->mainMemory + forkedSpace->pageTable[i].physicalPage * PageSize, 
-//		PageSize );
     }
-
+    
     return forkedSpace;
 }
 
@@ -390,7 +357,6 @@ AddrSpace::ReadFileIntoBuffer(int virtAddr, OpenFile* file, int size, int fileAd
     
     while (left > 0) 
     {
-//	location = TranslateDiskLocation(virtAddr);
 	readSize = min(PageSize,left);
 	bcopy(buffer+copied, into+virtAddr,readSize);
 	
@@ -406,6 +372,11 @@ AddrSpace::FreePages()
 {
     for(int i = 0; i < numPages; i++){
 	manager->ClearPage(pageTable[i].physicalPage);
+	if(pageTable[i].valid)
+	{
+	    manager->entries[pageTable[i].physicalPage].allocated = false;
+	    manager->entries[pageTable[i].physicalPage].space = NULL;
+	}
 	pageTable[i].valid = FALSE;
 	pageTable[i].valid = FALSE;
 	pageTable[i].use = FALSE;
